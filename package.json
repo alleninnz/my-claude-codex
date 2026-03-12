@@ -1,0 +1,7 @@
+{
+  "name": "my-claude-toolkit",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Personal Claude Code plugin — Go/TS/Python agents, skills, rules, and hooks",
+  "license": "MIT"
+}
