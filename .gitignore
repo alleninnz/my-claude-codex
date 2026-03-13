@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# AI agent
+.omc/
+.claude/
+
+# Editor
+.idea/
+.vscode/
+.cursor/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log

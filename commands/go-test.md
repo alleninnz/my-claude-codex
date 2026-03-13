@@ -264,5 +264,5 @@ go test -race -cover ./...
 
 ## Related
 
-- Skill: `skills/golang-testing/`
-- Skill: `skills/tdd-workflow/`
+- Command: `/go-build` - Fix build errors
+- Command: `/go-review` - Review code after implementation

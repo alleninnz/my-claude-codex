@@ -1,7 +1,7 @@
 ---
 name: golang-patterns
 description: Idiomatic Go patterns, best practices, and conventions for building robust, efficient, and maintainable Go applications.
-origin: ECC
+origin: my-claude-toolkit
 ---
 
 # Go Development Patterns
@@ -172,6 +172,78 @@ _ = writer.Close() // Best-effort cleanup, error logged elsewhere
 ```
 
 ## Concurrency Patterns
+
+### Recommended: conc.Pool (sourcegraph/conc)
+
+The `conc` package provides safer, simpler goroutine management than raw `sync.WaitGroup` or `errgroup`.
+
+#### Basic Pool (fire-and-forget)
+
+```go
+import "github.com/sourcegraph/conc"
+
+func processItems(items []Item) {
+    pool := conc.NewPool()
+    for _, item := range items {
+        pool.Go(func() {
+            process(item)
+        })
+    }
+    pool.Wait()
+}
+```
+
+#### Pool with Error Collection
+
+```go
+import "github.com/sourcegraph/conc/pool"
+
+func processItems(ctx context.Context, items []Item) error {
+    p := pool.New().WithErrors().WithContext(ctx)
+    for _, item := range items {
+        p.Go(func(ctx context.Context) error {
+            return process(ctx, item)
+        })
+    }
+    return p.Wait()
+}
+```
+
+#### Bounded Parallelism
+
+```go
+p := pool.New().
+    WithMaxGoroutines(10).
+    WithErrors().
+    WithContext(ctx)
+
+for _, item := range items {
+    p.Go(func(ctx context.Context) error {
+        return process(ctx, item)
+    })
+}
+return p.Wait()
+```
+
+#### Collecting Results
+
+```go
+import "github.com/sourcegraph/conc/pool"
+
+func fetchAll(ctx context.Context, ids []string) ([]Result, error) {
+    p := pool.NewWithResults[Result]().WithErrors().WithContext(ctx)
+    for _, id := range ids {
+        p.Go(func(ctx context.Context) (Result, error) {
+            return fetch(ctx, id)
+        })
+    }
+    return p.Wait()
+}
+```
+
+### Standard Library Alternatives
+
+The following patterns use only the standard library. Use these when `sourcegraph/conc` is not available in the project.
 
 ### Worker Pool
 
@@ -490,6 +562,50 @@ func NewServer(addr string) *Server {
 s := NewServer(":8080")
 s.Log("Starting...") // Calls embedded Logger.Log
 ```
+
+## Structured Logging
+
+Use structured logging with field-based context, never string interpolation.
+
+### Basic Patterns
+
+```go
+import log "github.com/sirupsen/logrus"
+
+// Good: structured fields
+log.WithField("user_id", userID).Info("Creating user")
+log.WithError(err).Error("Creating user")
+
+// Bad: string interpolation
+log.Infof("Creating user %d", userID)  // Don't do this
+```
+
+### Request-Scoped Logging
+
+```go
+func (s *Service) GetEntity(ctx context.Context, id string) (*Entity, error) {
+    logger := log.WithContext(ctx).WithFields(log.Fields{
+        "entity_id": id,
+        "method":    "GetEntity",
+    })
+
+    entity, err := s.store.Get(ctx, id)
+    if err != nil {
+        logger.WithError(err).Error("Getting entity from store")
+        return nil, fmt.Errorf("getting entity: %w", err)
+    }
+
+    logger.Info("Entity retrieved")
+    return entity, nil
+}
+```
+
+### Conventions
+
+- Capital first letter on log messages, no ending punctuation
+- Use `.WithField()` / `.WithError()` — never interpolate variables
+- Log at appropriate levels: `Debug` (dev only), `Info` (normal operations), `Warn` (recoverable issues), `Error` (failures requiring attention)
+- Error logs should pair with error returns — don't log and swallow errors
 
 ## Memory and Performance
 

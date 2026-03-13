@@ -1,7 +1,7 @@
 ---
 name: api-design
 description: REST API design patterns including resource naming, status codes, pagination, filtering, error responses, versioning, and rate limiting for production APIs.
-origin: ECC
+origin: my-claude-toolkit
 ---
 
 # API Design Patterns
@@ -521,3 +521,272 @@ Before shipping a new endpoint:
 - [ ] Response does not leak internal details (stack traces, SQL errors)
 - [ ] Consistent naming with existing endpoints (camelCase vs snake_case)
 - [ ] Documented (OpenAPI/Swagger spec updated)
+
+## gRPC API Design
+
+### Proto File Conventions
+
+- One service per `.proto` file
+- Package naming: `package jasper.<domain>.<version>;`
+- `go_package` option points to the generated Go package path
+- Use `google.protobuf.Timestamp` for all time fields
+- Use `google.protobuf.StringValue` for optional string fields in proto3
+
+```protobuf
+syntax = "proto3";
+
+package jasper.tasks.v0;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+option go_package = "github.com/org/service/proto/gen/go/tasks/v0";
+
+service TaskService {
+  rpc GetTask(GetTaskRequest) returns (GetTaskResponse);
+  rpc ListTasks(ListTasksRequest) returns (ListTasksResponse);
+  rpc CreateTask(CreateTaskRequest) returns (CreateTaskResponse);
+  rpc UpdateTask(UpdateTaskRequest) returns (UpdateTaskResponse);
+  rpc DeleteTask(DeleteTaskRequest) returns (DeleteTaskResponse);
+}
+```
+
+### Service and Method Naming
+
+Use **VerbNoun** pattern for RPC methods. Request and response types mirror the method name.
+
+```protobuf
+message GetTaskRequest {
+  string task_id = 1;
+}
+
+message GetTaskResponse {
+  Task task = 1;
+}
+
+message ListTasksRequest {
+  string parent_id = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListTasksResponse {
+  repeated Task tasks = 1;
+  string next_page_token = 2;
+}
+
+message CreateTaskRequest {
+  string title = 1;
+  google.protobuf.StringValue description = 2;
+  google.protobuf.Timestamp due_at = 3;
+}
+
+message CreateTaskResponse {
+  Task task = 1;
+}
+
+message Task {
+  string id = 1;
+  string title = 2;
+  google.protobuf.StringValue description = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+}
+```
+
+### gRPC Status Code Mapping
+
+| Situation | gRPC Status Code |
+|---|---|
+| Resource not found | `codes.NotFound` |
+| Validation failure | `codes.InvalidArgument` |
+| Duplicate / already exists | `codes.AlreadyExists` |
+| Permission denied | `codes.PermissionDenied` |
+| No authentication | `codes.Unauthenticated` |
+| Unexpected server error | `codes.Internal` |
+| Transient / retry-able error | `codes.Unavailable` |
+
+```go
+// Return the right status code rather than wrapping everything in Internal.
+if errors.Is(err, domain.ErrNotFound) {
+    return nil, status.Errorf(codes.NotFound, "task %s not found", req.TaskId)
+}
+if errors.Is(err, domain.ErrAlreadyExists) {
+    return nil, status.Errorf(codes.AlreadyExists, "task already exists")
+}
+```
+
+### Interceptor Patterns
+
+Chain interceptors in this order so each layer has the context it needs:
+
+```
+Recovery → Logging → Auth → Tenant → Tracing → Validation
+```
+
+```go
+grpc.NewServer(
+    grpc.ChainUnaryInterceptor(
+        recovery.UnaryServerInterceptor(),
+        logging.UnaryServerInterceptor(logger),
+        auth.UnaryServerInterceptor(authProvider),
+        tenant.UnaryServerInterceptor(),
+        otelgrpc.UnaryServerInterceptor(),
+        validation.UnaryServerInterceptor(),
+    ),
+)
+```
+
+### Packing Functions
+
+Conversion between domain types and proto types belongs in dedicated pack/unpack functions, not in handlers.
+
+```go
+// PackTask converts a domain Task to its proto representation.
+func PackTask(t *domain.Task) *tasksv0.Task {
+    return &tasksv0.Task{
+        Id:    t.ID,
+        Title: t.Title,
+        Description: &wrapperspb.StringValue{Value: t.Description},
+        CreatedAt:   timestamppb.New(t.CreatedAt),
+        UpdatedAt:   timestamppb.New(t.UpdatedAt),
+    }
+}
+
+// UnpackCreateTaskRequest converts a proto request to domain input.
+func UnpackCreateTaskRequest(req *tasksv0.CreateTaskRequest) domain.CreateTaskInput {
+    input := domain.CreateTaskInput{
+        Title: req.Title,
+    }
+    if req.Description != nil {
+        input.Description = req.Description.Value
+    }
+    if req.DueAt != nil {
+        t := req.DueAt.AsTime()
+        input.DueAt = &t
+    }
+    return input
+}
+```
+
+---
+
+## GraphQL API Design
+
+### Schema-First Design
+
+Define types in `.graphql` schema files; never hand-edit generated code.
+
+```graphql
+type Query {
+  task(id: ID!): Task
+  tasks(filter: TaskFilter, first: Int, after: String): TaskConnection!
+}
+
+type Task {
+  id: ID!
+  title: String!
+  description: String
+  status: TaskStatus!
+  assignee: User
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+}
+
+input TaskFilter {
+  status: TaskStatus
+  assigneeId: ID
+  dueBefore: DateTime
+}
+```
+
+### Pagination (Connections Pattern)
+
+Follow the Relay Cursor Connections spec for all list fields.
+
+```graphql
+type TaskConnection {
+  edges: [TaskEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type TaskEdge {
+  node: Task!
+  cursor: String!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+```
+
+Query pattern:
+
+```graphql
+query ListTasks($after: String) {
+  tasks(first: 20, after: $after, filter: { status: PENDING }) {
+    edges {
+      cursor
+      node { id title status }
+    }
+    pageInfo { hasNextPage endCursor }
+  }
+}
+```
+
+### Error Handling
+
+Use `extensions.code` for machine-readable error codes alongside the human-readable message.
+
+```json
+{
+  "errors": [
+    {
+      "message": "Task not found",
+      "locations": [{ "line": 2, "column": 3 }],
+      "path": ["task"],
+      "extensions": {
+        "code": "NOT_FOUND",
+        "taskId": "abc-123"
+      }
+    }
+  ],
+  "data": { "task": null }
+}
+```
+
+Standard extension codes: `NOT_FOUND`, `INVALID_ARGUMENT`, `UNAUTHENTICATED`, `PERMISSION_DENIED`, `INTERNAL`.
+
+### Deprecation Lifecycle
+
+Mark fields deprecated before removal; never delete a field in one step.
+
+```graphql
+type Task {
+  id: ID!
+  title: String!
+
+  # Deprecated: use assignee.id instead. Removal: 2025-Q3.
+  assigneeId: ID @deprecated(reason: "Use assignee { id } instead. Will be removed in 2025-Q3.")
+  assignee: User
+}
+```
+
+**Expand-contract pattern:**
+
+1. **Expand** — add the new field alongside the old one.
+2. **Migrate** — update all callers to use the new field.
+3. **Contract** — add `@deprecated` to the old field.
+4. **Remove** — delete the old field after the announced date.
+
+Never skip steps 2 or 3; removal without migration breaks clients silently.

@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This is a **Claude Code plugin** providing language-specific agents, skills, commands, and rules tailored for a Go + TypeScript + Python tech stack.
+This is a **Claude Code plugin** providing language-specific agents, skills, commands, and rules tailored for a Go + TypeScript tech stack.
 
 ## Complements
 
@@ -12,10 +12,10 @@ This repo provides what those plugins don't: language-specific code review agent
 
 ## What's Included
 
-- **Agents (4):** go-reviewer, go-build-resolver, database-reviewer, e2e-runner
-- **Skills (14):** golang-patterns, golang-testing, frontend-patterns, python-patterns, python-testing, api-design, docker-patterns, deployment-patterns, database-migrations, postgres-patterns, e2e-testing, article-writing, agentic-engineering, ai-first-engineering
-- **Commands (5):** /go-build, /go-review, /go-test, /python-review, /e2e
-- **Rules (4 dirs):** common, golang, typescript, python
-- **Hooks (2):** git-push reminder, JS/TS auto-format
+- **Agents (3):** go-reviewer, go-build-resolver, e2e-runner
+- **Skills (6):** golang-patterns, api-design, mysql-aurora-patterns, e2e-testing, article-writing, agentic-engineering
+- **Commands (4):** /go-build, /go-review, /go-test, /e2e
+- **Rules (3 dirs):** common, golang, typescript
+- **Hooks (3):** JS/TS auto-format, pre-commit Go/proto format, generated file guard
 - **Contexts (3):** dev, research, review
-- **Examples (2):** Go microservice and SaaS Next.js CLAUDE.md templates
+- **Examples (1):** Go microservice CLAUDE.md template

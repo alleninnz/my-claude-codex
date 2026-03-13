@@ -1,51 +1,59 @@
 # Go Microservice — Project CLAUDE.md
 
-> Real-world example for a Go microservice with PostgreSQL, gRPC, and Docker.
+> Template for a Go microservice with MySQL (Aurora), gRPC + grpc-gateway, Ent ORM, and Consul.
 > Copy this to your project root and customize for your service.
 
 ## Project Overview
 
-**Stack:** Go 1.22+, PostgreSQL, gRPC + REST (grpc-gateway), Docker, sqlc (type-safe SQL), Wire (dependency injection)
+**Stack:** Go 1.22+, MySQL 8.0 (Aurora), gRPC + REST (grpc-gateway), Ent ORM, Docker, mockery
 
-**Architecture:** Clean architecture with domain, repository, service, and handler layers. gRPC as primary transport with REST gateway for external clients.
+**Architecture:** Clean architecture with `admin/` and `product/` API split. Ent for type-safe database access with per-tenant databases. gRPC as primary transport with REST gateway for external clients. Consul for service discovery.
 
 ## Critical Rules
+
+### Code Generation — Never Edit These Files
+
+- `*.pb.go`, `*_grpc.pb.go` — generated from `.proto` files via `make protoc`
+- `ent/` directory contents — generated from `db/schema/` via `make entgo`
+
+Modify the source (`.proto` files, `db/schema/*.go`) and regenerate. Never hand-edit generated files.
 
 ### Go Conventions
 
 - Follow Effective Go and the Go Code Review Comments guide
-- Use `errors.New` / `fmt.Errorf` with `%w` for wrapping — never string matching on errors
+- Use `fmt.Errorf` with `%w` for wrapping — gerund form: `fmt.Errorf("creating user: %w", err)`
 - No `init()` functions — explicit initialization in `main()` or constructors
 - No global mutable state — pass dependencies via constructors
 - Context must be the first parameter and propagated through all layers
+- Use `sourcegraph/conc.Pool` for bounded concurrency, not raw goroutines
 
 ### Database
 
-- All queries in `queries/` as plain SQL — sqlc generates type-safe Go code
-- Migrations in `migrations/` using golang-migrate — never alter the database directly
-- Use transactions for multi-step operations via `pgx.Tx`
-- All queries must use parameterized placeholders (`$1`, `$2`) — never string formatting
+- Ent schemas live in `db/schema/` — run `make entgo` to regenerate `ent/`
+- Migrations in `db/migrations/` — create with `make migration name=<name>`, apply with `make migrate`
+- Up-only migrations — no down migrations; roll forward with a new migration
+- Per-tenant databases — each tenant gets its own database; use the tenant's Ent client from context
+- Use Ent transactions for multi-step operations: `client.Tx(ctx)`
 
 ### Error Handling
 
 - Return errors, don't panic — panics are only for truly unrecoverable situations
-- Wrap errors with context: `fmt.Errorf("creating user: %w", err)`
-- Define sentinel errors in `domain/errors.go` for business logic
-- Map domain errors to gRPC status codes in the handler layer
+- Wrap errors with gerund context: `fmt.Errorf("creating user: %w", err)`
+- Define sentinel errors for business logic and map to gRPC status codes in the handler layer
 
 ```go
-// Domain layer — sentinel errors
+// Sentinel errors
 var (
-    ErrUserNotFound  = errors.New("user not found")
-    ErrEmailTaken    = errors.New("email already registered")
+    ErrUserNotFound = errors.New("user not found")
+    ErrEmailTaken   = errors.New("email already registered")
 )
 
-// Handler layer — map to gRPC status
-func toGRPCError(err error) error {
+// Map to gRPC status codes in handler
+func toGRPCStatus(err error) error {
     switch {
-    case errors.Is(err, domain.ErrUserNotFound):
+    case errors.Is(err, ErrUserNotFound):
         return status.Error(codes.NotFound, err.Error())
-    case errors.Is(err, domain.ErrEmailTaken):
+    case errors.Is(err, ErrEmailTaken):
         return status.Error(codes.AlreadyExists, err.Error())
     default:
         return status.Error(codes.Internal, "internal error")
@@ -53,11 +61,20 @@ func toGRPCError(err error) error {
 }
 ```
 
+### Logging
+
+Use `logrus` with structured fields — never `fmt.Println` or bare `log.Printf` in business logic.
+
+```go
+log.WithField("user_id", userID).WithField("tenant", tenantID).Info("creating user")
+log.WithError(err).WithField("user_id", userID).Error("Creating user")
+```
+
 ### Code Style
 
 - No emojis in code or comments
 - Exported types and functions must have doc comments
-- Keep functions under 50 lines — extract helpers
+- Keep functions under 50 lines — extract helpers when needed
 - Use table-driven tests for all logic with multiple cases
 - Prefer `struct{}` for signal channels, not `bool`
 
@@ -66,125 +83,183 @@ func toGRPCError(err error) error {
 ```
 cmd/
   server/
-    main.go              # Entrypoint, Wire injection, graceful shutdown
-internal/
-  domain/                # Business types and interfaces
-    user.go              # User entity and repository interface
-    errors.go            # Sentinel errors
-  service/               # Business logic
-    user_service.go
-    user_service_test.go
-  repository/            # Data access (sqlc-generated + custom)
-    postgres/
-      user_repo.go
-      user_repo_test.go  # Integration tests with testcontainers
-  handler/               # gRPC + REST handlers
-    grpc/
-      user_handler.go
-    rest/
-      user_handler.go
-  config/                # Configuration loading
-    config.go
-proto/                   # Protobuf definitions
-  user/v1/
-    user.proto
-queries/                 # SQL queries for sqlc
-  user.sql
-migrations/              # Database migrations
-  001_create_users.up.sql
-  001_create_users.down.sql
+    main.go              # Entrypoint, DI wiring, graceful shutdown
+admin/                   # Admin API (internal, gRPC)
+  handler/
+    user_handler.go
+  proto/
+    admin/v1/
+      user.proto
+product/                 # Product API (external, gRPC + REST)
+  handler/
+    user_handler.go
+  proto/
+    product/v1/
+      user.proto
+services/                # Business logic (shared across APIs)
+  user_service.go
+  user_service_test.go
+stores/                  # Store interfaces + implementations
+  user_store.go          # Interface
+  ent_user_store.go      # Ent implementation
+  mock_user_store.go     # mockery-generated (do not edit)
+db/
+  schema/                # Ent schema definitions
+    user.go
+  migrations/            # Up-only SQL migrations
+    20240101_create_users.sql
+config/
+  config.go
+ent/                     # Generated by `make entgo` — do not edit
 ```
+
+## Build Commands
+
+```bash
+make all                         # Format, generate, build, test
+make protoc                      # Regenerate *.pb.go from .proto files, then run make format
+make entgo                       # Regenerate ent/ from db/schema/
+make mocks                       # Regenerate mockery mocks
+make format                      # goimports + gci + golines on all .go files
+make migration name=create_users # Create a new up-only migration file
+make migrate                     # Apply pending migrations
+make test                        # Run unit tests
+make integration                 # Run integration tests (requires DB)
+```
+
+After `make protoc`, always run `make format` (or use `make all` which does both).
 
 ## Key Patterns
 
-### Repository Interface
+### Store Interface
 
 ```go
-type UserRepository interface {
-    Create(ctx context.Context, user *User) error
-    FindByID(ctx context.Context, id uuid.UUID) (*User, error)
-    FindByEmail(ctx context.Context, email string) (*User, error)
-    Update(ctx context.Context, user *User) error
-    Delete(ctx context.Context, id uuid.UUID) error
+// stores/user_store.go
+type UserStore interface {
+    Create(ctx context.Context, params CreateUserParams) (*ent.User, error)
+    GetByID(ctx context.Context, id int64) (*ent.User, error)
+    GetByEmail(ctx context.Context, tenantID int64, email string) (*ent.User, error)
+    Update(ctx context.Context, id int64, params UpdateUserParams) (*ent.User, error)
+}
+
+type CreateUserParams struct {
+    TenantID int64
+    Name     string
+    Email    string
+    Password string
 }
 ```
 
-### Service with Dependency Injection
+### Ent Store Implementation
 
 ```go
-type UserService struct {
-    repo   domain.UserRepository
-    hasher PasswordHasher
-    logger *slog.Logger
+// stores/ent_user_store.go
+type EntUserStore struct {
+    db *ent.Client
 }
 
-func NewUserService(repo domain.UserRepository, hasher PasswordHasher, logger *slog.Logger) *UserService {
-    return &UserService{repo: repo, hasher: hasher, logger: logger}
+func NewEntUserStore(db *ent.Client) *EntUserStore {
+    return &EntUserStore{db: db}
 }
 
-func (s *UserService) Create(ctx context.Context, req CreateUserRequest) (*domain.User, error) {
-    existing, err := s.repo.FindByEmail(ctx, req.Email)
-    if err != nil && !errors.Is(err, domain.ErrUserNotFound) {
-        return nil, fmt.Errorf("checking email: %w", err)
-    }
-    if existing != nil {
-        return nil, domain.ErrEmailTaken
-    }
-
-    hashed, err := s.hasher.Hash(req.Password)
+func (s *EntUserStore) Create(ctx context.Context, params CreateUserParams) (*ent.User, error) {
+    user, err := s.db.User.Create().
+        SetTenantID(params.TenantID).
+        SetName(params.Name).
+        SetEmail(params.Email).
+        SetPassword(params.Password).
+        Save(ctx)
     if err != nil {
-        return nil, fmt.Errorf("hashing password: %w", err)
-    }
-
-    user := &domain.User{
-        ID:       uuid.New(),
-        Name:     req.Name,
-        Email:    req.Email,
-        Password: hashed,
-    }
-    if err := s.repo.Create(ctx, user); err != nil {
         return nil, fmt.Errorf("creating user: %w", err)
     }
     return user, nil
 }
 ```
 
-### Table-Driven Tests
+### Service with Dependency Injection
 
 ```go
-func TestUserService_Create(t *testing.T) {
+// services/user_service.go
+type UserService struct {
+    store  stores.UserStore
+    logger *logrus.Logger
+}
+
+func NewUserService(store stores.UserStore, logger *logrus.Logger) *UserService {
+    return &UserService{store: store, logger: logger}
+}
+
+func (s *UserService) CreateUser(ctx context.Context, req CreateUserRequest) (*ent.User, error) {
+    existing, err := s.store.GetByEmail(ctx, req.TenantID, req.Email)
+    if err != nil && !errors.Is(err, ErrUserNotFound) {
+        return nil, fmt.Errorf("checking email availability: %w", err)
+    }
+    if existing != nil {
+        return nil, ErrEmailTaken
+    }
+
+    user, err := s.store.Create(ctx, stores.CreateUserParams{
+        TenantID: req.TenantID,
+        Name:     req.Name,
+        Email:    req.Email,
+        Password: req.Password,
+    })
+    if err != nil {
+        return nil, fmt.Errorf("creating user: %w", err)
+    }
+
+    s.logger.WithField("user_id", user.ID).WithField("tenant_id", req.TenantID).Info("user created")
+    return user, nil
+}
+```
+
+### Table-Driven Tests with mockery
+
+mockery generates mocks with `.EXPECT()` style. Mock files live alongside the interface and are never hand-edited.
+
+```go
+// services/user_service_test.go
+func TestUserService_CreateUser(t *testing.T) {
     tests := []struct {
         name    string
         req     CreateUserRequest
-        setup   func(*MockUserRepo)
+        setup   func(*stores.MockUserStore)
         wantErr error
     }{
         {
-            name: "valid user",
-            req:  CreateUserRequest{Name: "Alice", Email: "alice@example.com", Password: "secure123"},
-            setup: func(m *MockUserRepo) {
-                m.On("FindByEmail", mock.Anything, "alice@example.com").Return(nil, domain.ErrUserNotFound)
-                m.On("Create", mock.Anything, mock.Anything).Return(nil)
+            name: "creates user successfully",
+            req:  CreateUserRequest{TenantID: 1, Name: "Alice", Email: "alice@example.com", Password: "secure123"},
+            setup: func(m *stores.MockUserStore) {
+                m.EXPECT().
+                    GetByEmail(mock.Anything, int64(1), "alice@example.com").
+                    Return(nil, ErrUserNotFound)
+                m.EXPECT().
+                    Create(mock.Anything, mock.MatchedBy(func(p stores.CreateUserParams) bool {
+                        return p.Email == "alice@example.com"
+                    })).
+                    Return(&ent.User{ID: 42}, nil)
             },
             wantErr: nil,
         },
         {
-            name: "duplicate email",
-            req:  CreateUserRequest{Name: "Alice", Email: "taken@example.com", Password: "secure123"},
-            setup: func(m *MockUserRepo) {
-                m.On("FindByEmail", mock.Anything, "taken@example.com").Return(&domain.User{}, nil)
+            name: "rejects duplicate email",
+            req:  CreateUserRequest{TenantID: 1, Name: "Alice", Email: "taken@example.com", Password: "secure123"},
+            setup: func(m *stores.MockUserStore) {
+                m.EXPECT().
+                    GetByEmail(mock.Anything, int64(1), "taken@example.com").
+                    Return(&ent.User{ID: 1}, nil)
             },
-            wantErr: domain.ErrEmailTaken,
+            wantErr: ErrEmailTaken,
         },
     }
 
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
-            repo := new(MockUserRepo)
-            tt.setup(repo)
-            svc := NewUserService(repo, &bcryptHasher{}, slog.Default())
+            mockStore := stores.NewMockUserStore(t)
+            tt.setup(mockStore)
 
-            _, err := svc.Create(context.Background(), tt.req)
+            svc := NewUserService(mockStore, logrus.New())
+            _, err := svc.CreateUser(context.Background(), tt.req)
 
             if tt.wantErr != nil {
                 assert.ErrorIs(t, err, tt.wantErr)
@@ -196,23 +271,119 @@ func TestUserService_Create(t *testing.T) {
 }
 ```
 
+### Integration Tests with enttest
+
+Integration tests use the `integration` build tag and spin up a real Ent client against a test database.
+
+```go
+//go:build integration
+
+package stores_test
+
+import (
+    "context"
+    "testing"
+
+    "entgo.io/ent/dialect"
+    "github.com/stretchr/testify/assert"
+    "github.com/stretchr/testify/require"
+
+    "github.com/yourorg/myservice/ent/enttest"
+    "github.com/yourorg/myservice/stores"
+)
+
+func TestEntUserStore_Create_Integration(t *testing.T) {
+    client := enttest.Open(t, dialect.MySQL, "root:password@tcp(localhost:3306)/testdb?parseTime=True")
+    defer client.Close()
+
+    store := stores.NewEntUserStore(client)
+
+    user, err := store.Create(context.Background(), stores.CreateUserParams{
+        TenantID: 1,
+        Name:     "Alice",
+        Email:    "alice@example.com",
+        Password: "hashed",
+    })
+
+    require.NoError(t, err)
+    assert.Equal(t, "Alice", user.Name)
+    assert.Equal(t, "alice@example.com", user.Email)
+}
+```
+
+### Bounded Concurrency with conc.Pool
+
+```go
+import "github.com/sourcegraph/conc/pool"
+
+p := pool.NewWithResults[*ent.User]().WithMaxGoroutines(10).WithContext(ctx)
+
+for _, id := range userIDs {
+    id := id
+    p.Go(func(ctx context.Context) (*ent.User, error) {
+        return s.store.GetByID(ctx, id)
+    })
+}
+
+users, err := p.Wait()
+if err != nil {
+    return nil, fmt.Errorf("fetching users: %w", err)
+}
+```
+
+### Ent Schema Example
+
+```go
+// db/schema/user.go
+package schema
+
+import (
+    "entgo.io/ent"
+    "entgo.io/ent/schema/field"
+    "entgo.io/ent/schema/index"
+)
+
+type User struct {
+    ent.Schema
+}
+
+func (User) Fields() []ent.Field {
+    return []ent.Field{
+        field.Int64("tenant_id"),
+        field.String("name"),
+        field.String("email"),
+        field.String("password").Sensitive(),
+    }
+}
+
+func (User) Indexes() []ent.Index {
+    return []ent.Index{
+        index.Fields("tenant_id", "email").Unique(),
+    }
+}
+```
+
 ## Environment Variables
 
 ```bash
-# Database
-DATABASE_URL=postgres://user:pass@localhost:5432/myservice?sslmode=disable
+# Database (per-service DSN, Aurora MySQL)
+DATABASE_DSN=user:pass@tcp(aurora-cluster:3306)/myservice?parseTime=True
 
 # gRPC
 GRPC_PORT=50051
 REST_PORT=8080
 
-# Auth
-JWT_SECRET=           # Load from vault in production
-TOKEN_EXPIRY=24h
+# Service discovery
+CONSUL_ADDR=consul:8500
+SERVICE_NAME=my-service
+SERVICE_HOST=my-service.internal
 
-# Observability
-LOG_LEVEL=info        # debug, info, warn, error
-OTEL_ENDPOINT=        # OpenTelemetry collector
+# Logging
+LOG_LEVEL=info       # debug, info, warn, error
+LOG_FORMAT=json      # json or text
+
+# Auth
+JWT_SECRET=          # Load from vault in production
 ```
 
 ## Testing Strategy
@@ -226,42 +397,26 @@ OTEL_ENDPOINT=        # OpenTelemetry collector
 ### Test Commands
 
 ```bash
-# Unit tests (fast, no external deps)
-go test ./internal/... -short -count=1
+# Unit tests (no external deps)
+go test ./... -count=1
 
-# Integration tests (requires Docker for testcontainers)
-go test ./internal/repository/... -count=1 -timeout 120s
+# Integration tests (requires MySQL)
+go test ./... -tags=integration -count=1 -timeout 120s
 
-# All tests with coverage
-go test ./... -coverprofile=coverage.out -count=1
-go tool cover -func=coverage.out  # summary
-go tool cover -html=coverage.out  # browser
+# Specific package
+go test ./services/... -run TestUserService -v
 
 # Race detector
 go test ./... -race -count=1
-```
 
-## ECC Workflow
-
-```bash
-# Planning
-/plan "Add rate limiting to user endpoints"
-
-# Development
-/go-test                  # TDD with Go-specific patterns
-
-# Review
-/go-review                # Go idioms, error handling, concurrency
-/security-scan            # Secrets and vulnerabilities
-
-# Before merge
-go vet ./...
-staticcheck ./...
+# Coverage
+go test ./... -coverprofile=coverage.out -count=1
+go tool cover -func=coverage.out
 ```
 
 ## Git Workflow
 
-- `feat:` new features, `fix:` bug fixes, `refactor:` code changes
-- Feature branches from `main`, PRs required
-- CI: `go vet`, `staticcheck`, `go test -race`, `golangci-lint`
-- Deploy: Docker image built in CI, deployed to Kubernetes
+- Conventional commits: `feat:`, `fix:`, `refactor:`, `chore:`, `test:`
+- Feature branches from `main`, PRs required for all changes
+- CI checks: `go vet ./...`, `staticcheck ./...`, `go test -race ./...`, `golangci-lint run`
+- Deploy: Docker image built in CI, deployed via Consul-registered service mesh

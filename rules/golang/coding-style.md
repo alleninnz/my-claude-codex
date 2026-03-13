@@ -23,9 +23,17 @@ Always wrap errors with context:
 
 ```go
 if err != nil {
-    return fmt.Errorf("failed to create user: %w", err)
+    return fmt.Errorf("creating user: %w", err)
 }
 ```
+
+Use gerund form (verb+ing) for error context. Never start with "failed to" or "error":
+
+| Wrong | Right |
+|---|---|
+| `"failed to create user: %w"` | `"creating user: %w"` |
+| `"error fetching data: %w"` | `"fetching data: %w"` |
+| `"could not connect: %w"` | `"connecting: %w"` |
 
 ## Reference
 

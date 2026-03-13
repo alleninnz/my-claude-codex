@@ -1,16 +1,20 @@
 # Coding Style
 
-## Immutability (CRITICAL)
+## Immutability
 
-ALWAYS create new objects, NEVER mutate existing ones:
+Prefer immutability where practical — create new objects rather than mutating existing ones. Mutation is expected in ORM hooks, RPC response building, and builder patterns.
 
 ```
-// Pseudocode
-WRONG:  modify(original, field, value) → changes original in-place
-CORRECT: update(original, field, value) → returns new copy with change
+// Pseudocode — prefer this when possible:
+update(original, field, value) → returns new copy with change
+
+// Mutation is fine when:
+// - Building ORM mutation hooks
+// - Constructing RPC request/response objects
+// - Using builder/functional-options patterns
 ```
 
-Rationale: Immutable data prevents hidden side effects, makes debugging easier, and enables safe concurrency.
+Rationale: Immutable data prevents hidden side effects, but strict immutability is impractical in languages/frameworks that rely on mutation (ORMs, RPC builders).
 
 ## File Organization
 
@@ -45,4 +49,4 @@ Before marking work complete:
 - [ ] No deep nesting (>4 levels)
 - [ ] Proper error handling
 - [ ] No hardcoded values (use constants or config)
-- [ ] No mutation (immutable patterns used)
+- [ ] Prefer immutable patterns (mutation OK in ORM hooks, RPC builders)

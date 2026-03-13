@@ -28,4 +28,4 @@ go test -cover ./...
 
 ## Reference
 
-See skill: `golang-testing` for detailed Go testing patterns and helpers.
+See command: `/go-test` for the TDD workflow and Go testing patterns.

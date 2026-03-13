@@ -7,10 +7,20 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/hooks/pre-bash-git-push-reminder.js\""
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/hooks/pre-commit-format.js\""
           }
         ],
-        "description": "Reminder before git push to review changes"
+        "description": "Format staged Go/proto files before commit (git commit, gt create/modify/amend)"
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/hooks/pre-edit-generated-guard.js\""
+          }
+        ],
+        "description": "Warn when editing generated files (proto, ent, gqlgen)"
       }
     ],
     "PostToolUse": [

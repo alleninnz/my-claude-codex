@@ -8,8 +8,7 @@
  * auto-detects the project formatter (Biome or Prettier) by looking
  * for config files, then formats accordingly.
  *
- * For Biome, uses `check --write` (format + lint in one pass) to
- * avoid a redundant second invocation from quality-gate.js.
+ * For Biome, uses `check --write` (format + lint in one pass).
  *
  * Prefers the local node_modules/.bin binary over npx to skip
  * package-resolution overhead (~200-500ms savings per invocation).
@@ -28,8 +27,7 @@ const { findProjectRoot, detectFormatter, resolveFormatterBin } = require('../li
 const MAX_STDIN = 1024 * 1024; // 1MB limit
 
 /**
- * Core logic — exported so run-with-flags.js can call directly
- * without spawning a child process.
+ * Core formatting logic.
  *
  * @param {string} rawInput - Raw JSON string from stdin
  * @returns {string} The original input (pass-through)

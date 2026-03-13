@@ -1,15 +1,19 @@
 # Git Workflow
 
 ## Commit Message Format
+
+[Conventional Commits](https://www.conventionalcommits.org/):
+
 ```
-<type>: <description>
+type(scope): description
 
 <optional body>
 ```
 
-Types: feat, fix, refactor, docs, test, chore, perf, ci
-
-Note: Attribution disabled globally via ~/.claude/settings.json.
+- **Types**: `feat`, `fix`, `docs`, `chore`, `refactor`, `perf`, `test`, `ci`, `build`, `style`
+- **Scope**: optional but encouraged (e.g., `feat(auth): add token refresh`)
+- **Breaking changes**: `feat!: description` or `BREAKING CHANGE:` in body
+- Lowercase imperative mood (e.g., "add feature" not "Added feature")
 
 ## Pull Request Workflow
 

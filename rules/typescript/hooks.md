@@ -13,7 +13,7 @@ paths:
 
 Configure in `~/.claude/settings.json`:
 
-- **Prettier**: Auto-format JS/TS files after edit
+- **Biome/Prettier**: Auto-format JS/TS files after edit (Biome preferred, Prettier fallback)
 - **TypeScript check**: Run `tsc` after editing `.ts`/`.tsx` files
 - **console.log warning**: Warn about `console.log` in edited files
 

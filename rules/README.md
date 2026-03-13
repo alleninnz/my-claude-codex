@@ -5,42 +5,24 @@ Rules are organized into a **common** layer plus **language-specific** directori
 
 ```
 rules/
-├── common/          # Language-agnostic principles (always install)
+├── common/          # Language-agnostic principles (always active)
 │   ├── coding-style.md
 │   ├── git-workflow.md
 │   ├── testing.md
-│   ├── performance.md
+│   ├── ai-workflow.md
 │   ├── patterns.md
 │   ├── hooks.md
 │   ├── agents.md
+│   ├── development-workflow.md
 │   └── security.md
-├── typescript/      # TypeScript/JavaScript specific
-├── python/          # Python specific
 ├── golang/          # Go specific
-├── swift/           # Swift specific
-└── php/             # PHP specific
+└── typescript/      # TypeScript/JavaScript specific
 ```
 
 - **common/** contains universal principles — no language-specific code examples.
 - **Language directories** extend the common rules with framework-specific patterns, tools, and code examples. Each file references its common counterpart.
 
 ## Installation
-
-### Option 1: Install Script (Recommended)
-
-```bash
-# Install common + one or more language-specific rule sets
-./install.sh typescript
-./install.sh python
-./install.sh golang
-./install.sh swift
-./install.sh php
-
-# Install multiple languages at once
-./install.sh typescript python
-```
-
-### Option 2: Manual Installation
 
 > **Important:** Copy entire directories — do NOT flatten with `/*`.
 > Common and language-specific directories contain files with the same names.
@@ -53,11 +35,8 @@ rules/
 cp -r rules/common ~/.claude/rules/common
 
 # Install language-specific rules based on your project's tech stack
-cp -r rules/typescript ~/.claude/rules/typescript
-cp -r rules/python ~/.claude/rules/python
 cp -r rules/golang ~/.claude/rules/golang
-cp -r rules/swift ~/.claude/rules/swift
-cp -r rules/php ~/.claude/rules/php
+cp -r rules/typescript ~/.claude/rules/typescript
 
 # Attention ! ! ! Configure according to your actual project requirements; the configuration here is for reference only.
 ```
@@ -65,7 +44,7 @@ cp -r rules/php ~/.claude/rules/php
 ## Rules vs Skills
 
 - **Rules** define standards, conventions, and checklists that apply broadly (e.g., "80% test coverage", "no hardcoded secrets").
-- **Skills** (`skills/` directory) provide deep, actionable reference material for specific tasks (e.g., `python-patterns`, `golang-testing`).
+- **Skills** (`skills/` directory) provide deep, actionable reference material for specific tasks (e.g., `golang-patterns`, `api-design`).
 
 Language-specific rule files reference relevant skills where appropriate. Rules tell you *what* to do; skills tell you *how* to do it.
 
@@ -91,7 +70,7 @@ To add support for a new language (e.g., `rust/`):
 When language-specific rules and common rules conflict, **language-specific rules take precedence** (specific overrides general). This follows the standard layered configuration pattern (similar to CSS specificity or `.gitignore` precedence).
 
 - `rules/common/` defines universal defaults applicable to all projects.
-- `rules/golang/`, `rules/python/`, `rules/swift/`, `rules/php/`, `rules/typescript/`, etc. override those defaults where language idioms differ.
+- `rules/golang/`, `rules/typescript/` override those defaults where language idioms differ.
 
 ### Example
 
