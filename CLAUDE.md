@@ -23,18 +23,16 @@ Commands explain *when*, agents define *how to behave*, skills contain *what to 
 ```
 rules/common/     ← universal defaults (always active)
 rules/golang/     ← extends common for Go projects
-rules/typescript/ ← extends common for TS projects
 ```
 
 Language-specific rules override common rules. File names mirror across layers (`coding-style.md`, `testing.md`, etc.).
 
-### Hooks (3 total, wired via hooks.json)
+### Hooks (2 total, wired via hooks.json)
 
 | Hook | Trigger | What it does |
 |---|---|---|
 | `pre-edit-generated-guard.js` | PreToolUse:Edit | Warns (non-blocking) when editing `*.pb.go`, `ent/`, `generated.go` |
 | `pre-commit-format.js` | PreToolUse:Bash | Formats staged `.go`/`.proto` files before `git commit`/`gt create`/`gt modify` |
-| `post-edit-format.js` | PostToolUse:Edit | Auto-formats JS/TS files with Biome or Prettier |
 
 Hook scripts use `${CLAUDE_PLUGIN_ROOT}` for path resolution. All follow stdin passthrough pattern (read raw JSON → process → write back to stdout).
 
@@ -43,7 +41,7 @@ Hook scripts use `${CLAUDE_PLUGIN_ROOT}` for path resolution. All follow stdin p
 - **Agents (3):** go-reviewer, go-build-resolver, e2e-runner
 - **Skills (6):** golang-patterns, api-design, mysql-aurora-patterns, e2e-testing, article-writing, agentic-engineering
 - **Commands (4):** /go-build, /go-review, /go-test, /e2e
-- **Rules (3 dirs):** common (9 files), golang (5 files), typescript (5 files)
-- **Hooks (3):** JS/TS auto-format, pre-commit Go/proto format, generated file guard
+- **Rules (2 dirs):** common (9 files), golang (5 files)
+- **Hooks (2):** pre-commit Go/proto format, generated file guard
 - **Contexts (3):** dev, research, review
 - **Examples (1):** Go microservice CLAUDE.md template

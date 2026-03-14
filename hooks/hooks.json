@@ -22,18 +22,6 @@
         ],
         "description": "Warn when editing generated files (proto, ent, gqlgen)"
       }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/hooks/post-edit-format.js\""
-          }
-        ],
-        "description": "Auto-format JS/TS files after edits (Biome or Prettier)"
-      }
     ]
   }
 }
