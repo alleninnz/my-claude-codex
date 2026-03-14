@@ -1,6 +1,6 @@
 ---
 name: e2e-testing
-description: Playwright E2E testing patterns, Page Object Model, configuration, CI/CD integration, artifact management, and flaky test strategies.
+description: Use when writing Playwright e2e tests — covers page object model, test configuration, flaky test handling, and CI/CD integration.
 origin: my-claude-toolkit
 ---
 
@@ -10,7 +10,7 @@ Comprehensive Playwright patterns for building stable, fast, and maintainable E2
 
 ## Test File Organization
 
-```
+```text
 tests/
 ├── e2e/
 │   ├── auth/
@@ -162,6 +162,7 @@ npx playwright test tests/search.spec.ts --retries=3
 ### Common Causes & Fixes
 
 **Race conditions:**
+
 ```typescript
 // Bad: assumes element is ready
 await page.click('[data-testid="button"]')
@@ -171,6 +172,7 @@ await page.locator('[data-testid="button"]').click()
 ```
 
 **Network timing:**
+
 ```typescript
 // Bad: arbitrary timeout
 await page.waitForTimeout(5000)
@@ -180,6 +182,7 @@ await page.waitForResponse(resp => resp.url().includes('/api/data'))
 ```
 
 **Animation timing:**
+
 ```typescript
 // Bad: click during animation
 await page.click('[data-testid="menu-item"]')
@@ -260,17 +263,20 @@ jobs:
 **Status:** PASSING / FAILING
 
 ## Summary
+
 - Total: X | Passed: Y (Z%) | Failed: A | Flaky: B | Skipped: C
 
 ## Failed Tests
 
 ### test-name
+
 **File:** `tests/e2e/feature.spec.ts:45`
 **Error:** Expected element to be visible
 **Screenshot:** artifacts/failed.png
 **Recommended Fix:** [description]
 
 ## Artifacts
+
 - HTML Report: playwright-report/index.html
 - Screenshots: artifacts/*.png
 - Videos: artifacts/videos/*.webm

@@ -1,6 +1,6 @@
 ---
 name: mysql-aurora-patterns
-description: MySQL and Aurora database patterns for query optimization, schema design, indexing, and performance tuning.
+description: Use when writing MySQL queries, designing Aurora schemas, optimizing indexes, or troubleshooting database performance.
 origin: my-claude-toolkit
 ---
 
@@ -114,7 +114,7 @@ Aurora MySQL is wire-compatible with MySQL 8.0 but has cluster-level features.
 
 **Read replicas:**
 
-```
+```text
 Writer:   aurora-cluster.cluster-xxxx.us-east-1.rds.amazonaws.com
 Reader:   aurora-cluster.cluster-ro-xxxx.us-east-1.rds.amazonaws.com
 ```

@@ -1,9 +1,11 @@
 ---
 name: go-build-resolver
-description: Go build, vet, and compilation error resolution specialist. Fixes build errors, go vet issues, and linter warnings with minimal changes. Use when Go builds fail.
+description: Use when go build, go vet, staticcheck, or golangci-lint fails and errors need surgical fixes with minimal diffs.
 tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]
 model: sonnet
 ---
+
+**REQUIRED BACKGROUND:** superpowers:systematic-debugging — root cause tracing when fixes don't converge
 
 # Go Build Error Resolver
 
@@ -76,6 +78,7 @@ go clean -modcache && go mod download  # Fix checksum issues
 ## Stop Conditions
 
 Stop and report if:
+
 - Same error persists after 3 fix attempts
 - Fix introduces more errors than it resolves
 - Error requires architectural changes beyond scope

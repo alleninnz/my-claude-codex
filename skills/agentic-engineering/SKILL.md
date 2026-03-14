@@ -1,8 +1,10 @@
 ---
 name: agentic-engineering
-description: Operate as an agentic engineer using eval-first execution, decomposition, and cost-aware model routing.
+description: Use when building or orchestrating AI agent workflows — covers eval-first development, model routing, task decomposition, and cost discipline.
 origin: my-claude-toolkit
 ---
+
+**REQUIRED BACKGROUND:** superpowers:dispatching-parallel-agents — concrete dispatch pattern for parallel agent work
 
 # Agentic Engineering
 
@@ -25,6 +27,7 @@ Use this skill for engineering workflows where AI agents perform most implementa
 ## Task Decomposition
 
 Apply the 15-minute unit rule:
+
 - each unit should be independently verifiable
 - each unit should have a single dominant risk
 - each unit should expose a clear done condition
@@ -44,6 +47,7 @@ Apply the 15-minute unit rule:
 ## Review Focus for AI-Generated Code
 
 Prioritize:
+
 - invariants and edge cases
 - error boundaries
 - security and auth assumptions
@@ -54,6 +58,7 @@ Do not waste review cycles on style-only disagreements when automated format/lin
 ## Cost Discipline
 
 Track per task:
+
 - model
 - token estimate
 - retries

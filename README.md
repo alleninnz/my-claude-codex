@@ -1,6 +1,6 @@
 # my-claude-toolkit
 
-Claude Code plugin for Go + TypeScript development. Provides language-specific agents, skills, commands, rules, and hooks.
+Claude Code plugin for Go development. Provides domain-specific agents, skills, commands, rules, and hooks. Integrates with [superpowers](https://github.com/anthropics/claude-code-plugins) for workflow discipline (TDD, code review, debugging).
 
 ## Install
 
@@ -13,7 +13,6 @@ claude plugins add /path/to/my-claude-toolkit
 Or copy rules manually:
 
 ```bash
-cp -r rules/common ~/.claude/rules/common
 cp -r rules/golang ~/.claude/rules/golang
 ```
 
@@ -24,9 +23,24 @@ cp -r rules/golang ~/.claude/rules/golang
 | Agents | 3 | go-reviewer, go-build-resolver, e2e-runner |
 | Skills | 6 | golang-patterns, api-design, mysql-aurora-patterns, e2e-testing, article-writing, agentic-engineering |
 | Commands | 4 | /go-build, /go-review, /go-test, /e2e |
-| Rules | 2 dirs | common, golang |
+| Rules | 5 files | Go-scoped (coding-style, testing, security, patterns, hooks) |
 | Hooks | 2 | pre-commit Go/proto format, generated file guard |
 | Contexts | 3 | dev, research, review |
+
+## Superpowers Integration
+
+Commands, agents, and skills cross-reference superpowers workflow disciplines via `**REQUIRED BACKGROUND:**` markers:
+
+| Toolkit component | superpowers skill |
+|---|---|
+| `/go-review`, `go-reviewer` | `requesting-code-review` |
+| `/go-build`, `go-build-resolver` | `systematic-debugging` |
+| `/go-test` | `test-driven-development` |
+| `e2e-runner` | `verification-before-completion` |
+| `golang-patterns`, `api-design` | `verification-before-completion` |
+| `agentic-engineering` | `dispatching-parallel-agents` |
+
+Markers are soft dependencies — the toolkit works without superpowers installed. All descriptions use `Use when...` triggers for superpowers-compatible discoverability.
 
 ## Hooks
 
@@ -36,6 +50,4 @@ cp -r rules/golang ~/.claude/rules/golang
 
 ## Complements
 
-Designed to work alongside:
-- [superpowers](https://github.com/anthropics/claude-code-plugins) — brainstorming, planning, TDD, debugging workflows
-- [oh-my-claudecode](https://github.com/anthropics/oh-my-claudecode) — agent orchestration, session management
+Designed to work alongside [superpowers](https://github.com/anthropics/claude-code-plugins) — brainstorming, planning, TDD, code review, debugging, and verification workflows.

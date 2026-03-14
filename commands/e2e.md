@@ -1,5 +1,5 @@
 ---
-description: Generate and run end-to-end tests with Playwright. Creates test journeys, runs tests, captures screenshots/videos/traces, and uploads artifacts.
+description: Use when creating, running, or debugging Playwright end-to-end tests, verifying critical user journeys, or investigating flaky e2e test failures.
 ---
 
 # E2E Command
@@ -17,6 +17,7 @@ This command invokes the **e2e-runner** agent to generate, maintain, and execute
 ## When to Use
 
 Use `/e2e` when:
+
 - Testing critical user journeys (login, trading, payments)
 - Verifying multi-step flows work end-to-end
 - Testing UI interactions and navigation
@@ -36,7 +37,7 @@ The e2e-runner agent will:
 
 ## Example Usage
 
-```
+```text
 User: /e2e Test the market search and view flow
 
 Agent (e2e-runner):
@@ -178,7 +179,7 @@ Artifacts generated:
 
 ## Test Report
 
-```
+```text
 ╔══════════════════════════════════════════════════════════════╗
 ║                    E2E Test Results                          ║
 ╠══════════════════════════════════════════════════════════════╣
@@ -200,7 +201,8 @@ View report: npx playwright show-report
 ```
 
 ✅ E2E test suite ready for CI/CD integration!
-```
+
+```text
 
 ## Test Artifacts
 
@@ -234,7 +236,7 @@ open artifacts/search-results.png
 
 If a test fails intermittently:
 
-```
+```text
 ⚠️  FLAKY TEST DETECTED: tests/e2e/markets/trade.spec.ts
 
 Test passed 7/10 runs (70% pass rate)
@@ -254,6 +256,7 @@ Quarantine recommendation: Mark as test.fixme() until fixed
 ## Browser Configuration
 
 Tests run on multiple browsers by default:
+
 - ✅ Chromium (Desktop Chrome)
 - ✅ Firefox (Desktop)
 - ✅ WebKit (Desktop Safari)
@@ -284,6 +287,7 @@ Add to your CI pipeline:
 ## Best Practices
 
 **DO:**
+
 - ✅ Use Page Object Model for maintainability
 - ✅ Use data-testid attributes for selectors
 - ✅ Wait for API responses, not arbitrary timeouts
@@ -292,6 +296,7 @@ Add to your CI pipeline:
 - ✅ Review artifacts when tests fail
 
 **DON'T:**
+
 - ❌ Use brittle selectors (CSS classes can change)
 - ❌ Test implementation details
 - ❌ Run tests against production

@@ -1,8 +1,10 @@
 ---
 name: golang-patterns
-description: Idiomatic Go patterns, best practices, and conventions for building robust, efficient, and maintainable Go applications.
+description: Use when writing, reviewing, or refactoring Go code — covers error handling, concurrency, interfaces, package design, and performance patterns.
 origin: my-claude-toolkit
 ---
+
+**REQUIRED BACKGROUND:** superpowers:verification-before-completion — verify implementation actually works before claiming done
 
 # Go Development Patterns
 

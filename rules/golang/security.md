@@ -4,9 +4,8 @@ paths:
   - "**/go.mod"
   - "**/go.sum"
 ---
-# Go Security
 
-> This file extends [common/security.md](../common/security.md) with Go specific content.
+# Go Security
 
 ## Secret Management
 
@@ -20,6 +19,7 @@ if apiKey == "" {
 ## Security Scanning
 
 - Use **gosec** for static security analysis:
+
   ```bash
   gosec ./...
   ```
@@ -32,3 +32,13 @@ Always use `context.Context` for timeout control:
 ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 defer cancel()
 ```
+
+## Security Response Protocol
+
+If a security issue is found:
+
+1. STOP immediately
+2. Use **security-reviewer** agent
+3. Fix CRITICAL issues before continuing
+4. Rotate any exposed secrets
+5. Review codebase for similar issues

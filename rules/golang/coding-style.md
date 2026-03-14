@@ -4,13 +4,21 @@ paths:
   - "**/go.mod"
   - "**/go.sum"
 ---
-# Go Coding Style
 
-> This file extends [common/coding-style.md](../common/coding-style.md) with Go specific content.
+# Go Coding Style
 
 ## Formatting
 
 - **gofmt** and **goimports** are mandatory — no style debates
+
+## File Organization
+
+- 200-400 lines typical, 800 max
+- Organize by feature/domain, not by type
+
+## Immutability
+
+Prefer immutability where practical. Mutation is expected in ORM hooks, RPC response building, and builder/functional-options patterns.
 
 ## Design Principles
 

@@ -1,9 +1,11 @@
 ---
 name: e2e-runner
-description: End-to-end testing specialist using Vercel Agent Browser (preferred) with Playwright fallback. Use PROACTIVELY for generating, maintaining, and running E2E tests. Manages test journeys, quarantines flaky tests, uploads artifacts (screenshots, videos, traces), and ensures critical user flows work.
+description: Use when generating Playwright e2e tests, running cross-browser test suites, or diagnosing flaky test failures. Use PROACTIVELY for generating, maintaining, and running E2E tests.
 tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]
 model: sonnet
 ---
+
+**REQUIRED BACKGROUND:** superpowers:verification-before-completion — evidence-based completion, no "should pass"
 
 # E2E Test Runner
 
@@ -51,11 +53,13 @@ npx playwright show-report                 # View HTML report
 ## Workflow
 
 ### 1. Plan
+
 - Identify critical user journeys (auth, core features, payments, CRUD)
 - Define scenarios: happy path, edge cases, error cases
 - Prioritize by risk: HIGH (financial, auth), MEDIUM (search, nav), LOW (UI polish)
 
 ### 2. Create
+
 - Use Page Object Model (POM) pattern
 - Prefer `data-testid` locators over CSS/XPath
 - Add assertions at key steps
@@ -63,6 +67,7 @@ npx playwright show-report                 # View HTML report
 - Use proper waits (never `waitForTimeout`)
 
 ### 3. Execute
+
 - Run locally 3-5 times to check for flakiness
 - Quarantine flaky tests with `test.fixme()` or `test.skip()`
 - Upload artifacts to CI

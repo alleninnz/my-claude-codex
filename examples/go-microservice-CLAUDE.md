@@ -80,7 +80,7 @@ log.WithError(err).WithField("user_id", userID).Error("Creating user")
 
 ## File Structure
 
-```
+```text
 cmd/
   server/
     main.go              # Entrypoint, DI wiring, graceful shutdown

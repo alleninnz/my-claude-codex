@@ -1,6 +1,8 @@
 ---
-description: Fix Go build errors, go vet warnings, and linter issues incrementally. Invokes the go-build-resolver agent for minimal, surgical fixes.
+description: Use when Go build fails, go vet reports issues, staticcheck or golangci-lint errors need fixing, or go mod verify fails. Invokes the go-build-resolver agent for minimal, surgical fixes.
 ---
+
+**REQUIRED BACKGROUND:** superpowers:systematic-debugging — root cause investigation when build errors have deeper causes
 
 # Go Build and Fix
 
@@ -17,6 +19,7 @@ This command invokes the **go-build-resolver** agent to incrementally fix Go bui
 ## When to Use
 
 Use `/go-build` when:
+
 - `go build ./...` fails with errors
 - `go vet ./...` reports issues
 - `golangci-lint run` shows warnings
@@ -107,11 +110,15 @@ Error: missing return at end of function
 ```go
 func GetUser(id string) (*User, error) {
     if id == "" {
-        return nil, ErrInvalidID
-    }
-    user := findUser(id)
-    // Added missing return
-    return user, nil
+```
+
+return nil, ErrInvalidID
+}
+user := findUser(id)
+// Added missing return
+return user, nil
+
+```text
 }
 ```
 
@@ -141,7 +148,8 @@ ok      project/internal/handler   0.023s
 | Remaining issues | 0 |
 
 Build Status: ✅ SUCCESS
-```
+
+```text
 
 ## Common Errors Fixed
 

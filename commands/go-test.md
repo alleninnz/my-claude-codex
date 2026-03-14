@@ -1,6 +1,8 @@
 ---
-description: Enforce TDD workflow for Go. Write table-driven tests first, then implement. Verify 80%+ coverage with go test -cover.
+description: Use when writing new Go code that needs tests, adding test coverage to existing Go code, or starting a Go implementation task with test-driven development.
 ---
+
+**REQUIRED BACKGROUND:** superpowers:test-driven-development — strict RED-GREEN-REFACTOR discipline with anti-rationalization gates
 
 # Go TDD Command
 
@@ -18,6 +20,7 @@ This command enforces test-driven development methodology for Go code using idio
 ## When to Use
 
 Use `/go-test` when:
+
 - Implementing new Go functions
 - Adding test coverage to existing code
 - Fixing bugs (write failing test first)
@@ -26,7 +29,7 @@ Use `/go-test` when:
 
 ## TDD Cycle
 
-```
+```text
 RED     → Write failing table-driven test
 GREEN   → Implement minimal code to pass
 REFACTOR → Improve code, tests stay green
@@ -35,7 +38,7 @@ REPEAT  → Next test case
 
 ## Example Session
 
-````
+````text
 User: /go-test I need a function to validate email addresses
 
 Agent:
@@ -172,6 +175,7 @@ ok      project/validator    0.003s
 ## Test Patterns
 
 ### Table-Driven Tests
+
 ```go
 tests := []struct {
     name     string
@@ -192,6 +196,7 @@ for _, tt := range tests {
 ```
 
 ### Parallel Tests
+
 ```go
 for _, tt := range tests {
     tt := tt // Capture
@@ -203,6 +208,7 @@ for _, tt := range tests {
 ```
 
 ### Test Helpers
+
 ```go
 func setupTestDB(t *testing.T) *sql.DB {
     t.Helper()
@@ -243,6 +249,7 @@ go test -race -cover ./...
 ## TDD Best Practices
 
 **DO:**
+
 - Write test FIRST, before any implementation
 - Run tests after each change
 - Use table-driven tests for comprehensive coverage
@@ -250,6 +257,7 @@ go test -race -cover ./...
 - Include edge cases (empty, nil, max values)
 
 **DON'T:**
+
 - Write implementation before tests
 - Skip the RED phase
 - Test private functions directly
