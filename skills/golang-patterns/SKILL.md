@@ -1,7 +1,7 @@
 ---
 name: golang-patterns
 description: Use when writing, reviewing, or refactoring Go code — covers error handling, concurrency, interfaces, package design, and performance patterns.
-origin: my-claude-toolkit
+origin: my-claude-code
 ---
 
 **REQUIRED BACKGROUND:** superpowers:verification-before-completion — verify implementation actually works before claiming done

@@ -1,7 +1,7 @@
 ---
 name: agentic-engineering
 description: Use when building or orchestrating AI agent workflows — covers eval-first development, model routing, task decomposition, and cost discipline.
-origin: my-claude-toolkit
+origin: my-claude-code
 ---
 
 **REQUIRED BACKGROUND:** superpowers:dispatching-parallel-agents — concrete dispatch pattern for parallel agent work

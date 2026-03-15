@@ -1,7 +1,7 @@
 ---
 name: article-writing
 description: Use when writing technical articles, blog posts, or newsletters — covers voice capture, structure, and evidence-first writing.
-origin: my-claude-toolkit
+origin: my-claude-code
 ---
 
 # Article Writing

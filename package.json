@@ -1,5 +1,5 @@
 {
-  "name": "my-claude-toolkit",
+  "name": "my-claude-code",
   "version": "0.0.1",
   "private": true,
   "description": "Personal Claude Code plugin — Go/TS agents, skills, rules, and hooks for Claude Code",

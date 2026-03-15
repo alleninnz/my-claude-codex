@@ -1,7 +1,7 @@
 ---
 name: api-design
 description: Use when designing REST, gRPC, or GraphQL APIs — covers URL conventions, pagination, versioning, error semantics, and proto/schema patterns.
-origin: my-claude-toolkit
+origin: my-claude-code
 ---
 
 **REQUIRED BACKGROUND:** superpowers:verification-before-completion — verify API contracts, don't assume correctness

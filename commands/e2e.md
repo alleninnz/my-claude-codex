@@ -313,7 +313,7 @@ Add to your CI pipeline:
 
 ## Related Agents
 
-This command invokes the `e2e-runner` agent provided by my-claude-toolkit.
+This command invokes the `e2e-runner` agent provided by my-claude-code.
 
 For manual installs, the source file lives at:
 `agents/e2e-runner.md`

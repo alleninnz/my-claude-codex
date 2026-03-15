@@ -1,7 +1,7 @@
 ---
 name: mysql-aurora-patterns
 description: Use when writing MySQL queries, designing Aurora schemas, optimizing indexes, or troubleshooting database performance.
-origin: my-claude-toolkit
+origin: my-claude-code
 ---
 
 # MySQL & Aurora Patterns

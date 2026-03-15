@@ -20,5 +20,8 @@ Thumbs.db
 # Logs
 *.log
 
+# Linter cache
+.rumdl_cache/
+
 # docs
 docs/
