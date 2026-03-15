@@ -1,0 +1,12 @@
+{
+  "name": "my-claude-toolkit",
+  "description": "Claude Code plugin for Go development — agents, skills, commands, rules, and hooks. Integrates with superpowers for workflow discipline.",
+  "version": "0.0.1",
+  "author": {
+    "name": "Ethan"
+  },
+  "repository": "https://github.com/alleninnz/my-claude-toolkit",
+  "homepage": "https://github.com/alleninnz/my-claude-toolkit",
+  "license": "MIT",
+  "keywords": ["golang", "go", "hooks", "agents", "skills"]
+}
