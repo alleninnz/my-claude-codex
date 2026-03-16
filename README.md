@@ -98,20 +98,20 @@ Three switchable modes: `dev` (code first), `research` (explore first), `review`
 
 ## Design: Superpowers Integration
 
-Soft dependency — everything works without superpowers, but it adds workflow discipline.
+Optional dependency — everything works without superpowers, but it adds workflow discipline.
 
-All cross-references use `**REQUIRED BACKGROUND:**` — commands, agents, and skills internalize superpowers philosophy without invoking it at runtime. This preserves Go-specific capabilities (agents, skills) while gaining workflow discipline.
+Commands and agents invoke required skills via **Step 0** in their workflow using the Skill tool. Step 0 includes "(skip any that are unavailable)" so the plugin degrades gracefully without superpowers installed.
 
 ### Current Mappings
 
-| Component | Marker | superpowers skill |
-| --- | --- | --- |
-| /go-test | BACKGROUND | test-driven-development |
-| /go-review | BACKGROUND | requesting-code-review |
-| /go-build, go-build-resolver | BACKGROUND | systematic-debugging |
-| go-reviewer, e2e-runner | BACKGROUND | verification-before-completion |
-| golang-patterns, api-design | BACKGROUND | verification-before-completion |
-| /ultrawork, agentic-engineering | BACKGROUND | dispatching-parallel-agents |
+| Component | Step 0 invokes | superpowers skill | internal skill |
+| --- | --- | --- | --- |
+| /go-review, go-reviewer | Step 0 | requesting-code-review, verification-before-completion | golang-patterns |
+| /go-test | Step 0 | test-driven-development | golang-testing |
+| /go-build, go-build-resolver | Step 0 | systematic-debugging | golang-patterns |
+| /e2e, e2e-runner | Step 0 | verification-before-completion | e2e-testing |
+| /go-simplify, go-simplifier | Step 0 | — | golang-patterns |
+| /ultrawork | Step 0 | dispatching-parallel-agents | — |
 
 ## License
 

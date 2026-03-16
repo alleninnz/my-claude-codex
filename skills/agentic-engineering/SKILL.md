@@ -4,8 +4,6 @@ description: Use when building or orchestrating AI agent workflows — covers ev
 origin: everything-claude-code
 ---
 
-**REQUIRED BACKGROUND:** superpowers:dispatching-parallel-agents — concrete dispatch pattern for parallel agent work
-
 # Agentic Engineering
 
 Use this skill for engineering workflows where AI agents perform most implementation work and humans enforce quality and risk controls.

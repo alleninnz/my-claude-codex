@@ -10,6 +10,8 @@ This command invokes the **go-simplifier** agent to simplify Go code using a 3-l
 
 ## What This Command Does
 
+0. **Load required skills** (skip any that are unavailable): Invoke these via the Skill tool before proceeding:
+   - `my-claude-code:golang-patterns` — Go idioms for structural and architectural checks
 1. **Determine targets**: Finds Go files changed on the current branch (or uses specified paths)
 2. **Layer 1 -- Tool fixes**: Runs `staticcheck -checks "S*"` for mechanical simplifications (35+ gosimple rules)
 3. **Layer 2 -- Structural**: AI checks for error flow, function length, nesting depth, naming
@@ -47,5 +49,4 @@ This command invokes the **go-simplifier** agent to simplify Go code using a 3-l
 ## Related
 
 - Agent: `agents/go-simplifier.md`
-- Skill: `skills/golang-patterns/`
 - Rules: `rules/golang/coding-style.md`

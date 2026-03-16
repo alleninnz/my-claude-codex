@@ -4,8 +4,6 @@ description: Use when designing REST, gRPC, or GraphQL APIs — covers URL conve
 origin: everything-claude-code
 ---
 
-**REQUIRED BACKGROUND:** superpowers:verification-before-completion — verify API contracts, don't assume correctness
-
 # API Design Patterns
 
 Conventions and best practices for designing consistent, developer-friendly REST APIs.

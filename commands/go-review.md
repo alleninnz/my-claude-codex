@@ -2,14 +2,15 @@
 description: Use when reviewing Go code changes, after completing a Go implementation task, before merging Go PRs, or when checking for Go-specific security and concurrency issues. Invokes the go-reviewer agent.
 ---
 
-**REQUIRED BACKGROUND:** superpowers:requesting-code-review — severity framework and BASE_SHA/HEAD_SHA approach for structured review
-
 # Go Code Review
 
 This command invokes the **go-reviewer** agent for comprehensive Go-specific code review.
 
 ## What This Command Does
 
+0. **Load required skills** (skip any that are unavailable): Invoke these via the Skill tool before proceeding:
+   - `superpowers:requesting-code-review` — severity framework, BASE_SHA/HEAD_SHA approach
+   - `my-claude-code:golang-patterns` — Go idioms, error handling, concurrency patterns
 1. **Identify Go Changes**: Find modified `.go` files via `git diff`
 2. **Run Static Analysis**: Execute `go vet`, `staticcheck`, and `golangci-lint`
 3. **Security Scan**: Check for SQL injection, command injection, race conditions
@@ -156,4 +157,3 @@ Recommendation: ❌ Block merge until CRITICAL issue is fixed
 ## Related
 
 - Agent: `agents/go-reviewer.md`
-- Skill: `skills/golang-patterns/`

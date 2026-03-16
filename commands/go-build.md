@@ -2,14 +2,15 @@
 description: Use when Go build fails, go vet reports issues, staticcheck or golangci-lint errors need fixing, or go mod verify fails. Invokes the go-build-resolver agent for minimal, surgical fixes.
 ---
 
-**REQUIRED BACKGROUND:** superpowers:systematic-debugging — root cause investigation when build errors have deeper causes
-
 # Go Build and Fix
 
 This command invokes the **go-build-resolver** agent to incrementally fix Go build errors with minimal changes.
 
 ## What This Command Does
 
+0. **Load required skills** (skip any that are unavailable): Invoke these via the Skill tool before proceeding:
+   - `superpowers:systematic-debugging` — root cause investigation methodology
+   - `my-claude-code:golang-patterns` — Go idioms, error handling, concurrency patterns
 1. **Run Diagnostics**: Execute `go build`, `go vet`, `staticcheck`
 2. **Parse Errors**: Group by file and sort by severity
 3. **Fix Incrementally**: One error at a time
@@ -187,4 +188,3 @@ The agent will stop and report if:
 ## Related
 
 - Agent: `agents/go-build-resolver.md`
-- Skill: `skills/golang-patterns/`

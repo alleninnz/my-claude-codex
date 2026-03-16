@@ -4,8 +4,6 @@ description: Use when writing, reviewing, or refactoring Go code — covers erro
 origin: everything-claude-code
 ---
 
-**REQUIRED BACKGROUND:** superpowers:verification-before-completion — verify implementation actually works before claiming done
-
 # Go Development Patterns
 
 Idiomatic Go patterns and best practices for building robust, efficient, and maintainable applications.

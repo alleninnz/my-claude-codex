@@ -2,14 +2,15 @@
 description: Use when writing new Go code that needs tests, adding test coverage to existing Go code, or starting a Go implementation task with test-driven development.
 ---
 
-**REQUIRED BACKGROUND:** superpowers:test-driven-development — enforce RED-GREEN-REFACTOR discipline with anti-rationalization gates
-
 # Go TDD Command
 
 This command enforces test-driven development methodology for Go code using idiomatic Go testing patterns.
 
 ## What This Command Does
 
+0. **Load required skills** (skip any that are unavailable): Invoke these via the Skill tool before proceeding:
+   - `superpowers:test-driven-development` — RED-GREEN-REFACTOR discipline
+   - `my-claude-code:golang-testing` — table-driven tests, benchmarks, fuzzing, coverage patterns
 1. **Define Types/Interfaces**: Scaffold function signatures first
 2. **Write Table-Driven Tests**: Create comprehensive test cases (RED)
 3. **Run Tests**: Verify tests fail for the right reason
@@ -172,8 +173,6 @@ ok      project/validator    0.003s
 ## TDD Complete!
 ````
 
-For Go testing patterns, coverage commands, benchmarks, and fuzzing, see skill: `golang-testing`.
-
 ## Related Commands
 
 - `/go-build` - Fix build errors
@@ -182,6 +181,5 @@ For Go testing patterns, coverage commands, benchmarks, and fuzzing, see skill: 
 
 ## Related
 
-- Skill: `skills/golang-testing/`
 - Command: `/go-build` - Fix build errors
 - Command: `/go-review` - Review code after implementation

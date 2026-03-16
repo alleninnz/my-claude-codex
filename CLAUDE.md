@@ -12,17 +12,17 @@ Claude Code plugin for Go development. Provides domain-specific agents, skills, 
 ## Architecture
 
 ```text
-Command → Agent → Skill → superpowers discipline
-/go-build  → go-build-resolver → golang-patterns → systematic-debugging
-/go-review → go-reviewer       → golang-patterns → verification-before-completion
-/go-test   → (inline TDD)      → golang-testing  → test-driven-development
-/e2e       → e2e-runner        → e2e-testing
-/cr-review → cr-reviewer       → (none)
-/go-simplify → go-simplifier     → golang-patterns → (none)
-/ultrawork   → (main context)       → dispatching-parallel-agents
+Command → Agent → Step 0 loads skills via Skill tool
+/go-build    → go-build-resolver → systematic-debugging + golang-patterns
+/go-review   → go-reviewer       → requesting-code-review + golang-patterns
+/go-test     → (inline TDD)      → test-driven-development + golang-testing
+/e2e         → e2e-runner        → verification-before-completion + e2e-testing
+/cr-review   → cr-reviewer       → (none)
+/go-simplify → go-simplifier     → golang-patterns
+/ultrawork   → (main context)    → dispatching-parallel-agents
 ```
 
-Commands, agents, and skills cross-reference superpowers via `**REQUIRED BACKGROUND:**` markers (soft dependency — works without superpowers).
+Commands and agents invoke required skills (superpowers + internal) via Step 0 in their workflow. Degrades gracefully without superpowers.
 
 ## Components
 
