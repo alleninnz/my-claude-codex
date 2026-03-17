@@ -8,13 +8,22 @@ description: Use when you want to execute multiple independent tasks in parallel
 
 Parallel execution engine. Decompose tasks, route to model tiers, dispatch simultaneously.
 
+## DEPENDENCY-GATE — STOP HERE FIRST
+
+**You MUST invoke each skill listed below via the Skill tool BEFORE reading any further instructions in this file.**
+
+1. Invoke each skill below via the Skill tool:
+   - `superpowers:dispatching-parallel-agents` — judgment framework for when NOT to parallelize
+2. Create a TodoWrite checklist to track loading status:
+   - [ ] superpowers:dispatching-parallel-agents
+3. After invoking each skill, mark it complete in the checklist
+4. If a skill fails to load, mark it as [SKIP] and continue
+5. Only after ALL items have a terminal state (complete or skipped)
+   may you proceed past this gate
+
+**Do NOT skip this gate. Do NOT proceed to the steps below.**
+
 ## Workflow
-
-### Step 0 -- Load prerequisites
-
-Invoke via the Skill tool before proceeding (skip any that are unavailable):
-
-- `superpowers:dispatching-parallel-agents` — judgment framework for when NOT to parallelize
 
 ### Step 1 -- Analyze and decompose
 

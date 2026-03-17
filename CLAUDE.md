@@ -12,17 +12,17 @@ Claude Code plugin for Go development. Provides domain-specific agents, skills, 
 ## Architecture
 
 ```text
-Command → Agent → Step 0 loads skills via Skill tool
-/go-build    → go-build-resolver → systematic-debugging + golang-patterns
-/go-review   → go-reviewer       → requesting-code-review + golang-patterns
-/go-test     → (inline TDD)      → test-driven-development + golang-testing
-/e2e         → e2e-runner        → verification-before-completion + e2e-testing
+Command → Agent → DEPENDENCY-GATE loads skills via Skill tool
+/go-build    → go-build-resolver → golang-patterns + systematic-debugging
+/go-review   → go-reviewer       → golang-patterns + requesting-code-review
+/go-test     → (inline TDD)      → golang-testing + test-driven-development
+/e2e         → e2e-runner        → e2e-testing + verification-before-completion
 /cr-review   → cr-reviewer       → (none)
 /go-simplify → go-simplifier     → golang-patterns
 /ultrawork   → (main context)    → dispatching-parallel-agents
 ```
 
-Commands and agents invoke required skills (superpowers + internal) via Step 0 in their workflow. Degrades gracefully without superpowers.
+Commands and agents declare required skills via `DEPENDENCY-GATE` blocks. my-claude-code skills load first (domain knowledge), then superpowers skills (process framework). Degrades gracefully without superpowers.
 
 ## Components
 

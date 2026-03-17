@@ -100,18 +100,23 @@ Three switchable modes: `dev` (code first), `research` (explore first), `review`
 
 Optional dependency — everything works without superpowers, but it adds workflow discipline.
 
-Commands and agents invoke required skills via **Step 0** in their workflow using the Skill tool. Step 0 includes "(skip any that are unavailable)" so the plugin degrades gracefully without superpowers installed.
+Commands and agents declare required skills via `DEPENDENCY-GATE` blocks at the top of each file. The gate enforces loading via the Skill tool with a TodoWrite checklist for tracking. Skills that fail to load are marked `[SKIP]` — the command proceeds regardless, degrading gracefully without superpowers.
+
+Loading order: my-claude-code skills first (domain knowledge), then superpowers skills (process framework).
 
 ### Current Mappings
 
-| Component | Step 0 invokes | superpowers skill | internal skill |
-| --- | --- | --- | --- |
-| /go-review, go-reviewer | Step 0 | requesting-code-review, verification-before-completion | golang-patterns |
-| /go-test | Step 0 | test-driven-development | golang-testing |
-| /go-build, go-build-resolver | Step 0 | systematic-debugging | golang-patterns |
-| /e2e, e2e-runner | Step 0 | verification-before-completion | e2e-testing |
-| /go-simplify, go-simplifier | Step 0 | — | golang-patterns |
-| /ultrawork | Step 0 | dispatching-parallel-agents | — |
+| Component | my-claude-code skill | superpowers skill |
+| --- | --- | --- |
+| /go-review | golang-patterns | requesting-code-review |
+| go-reviewer | golang-patterns | verification-before-completion |
+| /go-test | golang-testing | test-driven-development |
+| /go-build | golang-patterns | systematic-debugging |
+| go-build-resolver | golang-patterns | systematic-debugging |
+| /e2e | e2e-testing | verification-before-completion |
+| e2e-runner | e2e-testing | verification-before-completion |
+| /go-simplify, go-simplifier | golang-patterns | — |
+| /ultrawork | — | dispatching-parallel-agents |
 
 ## License
 

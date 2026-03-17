@@ -8,10 +8,23 @@ description: Use when simplifying Go code for clarity and maintainability.
 
 This command invokes the **go-simplifier** agent to simplify Go code using a 3-layer approach.
 
+## DEPENDENCY-GATE — STOP HERE FIRST
+
+**You MUST invoke each skill listed below via the Skill tool BEFORE reading any further instructions in this file.**
+
+1. Invoke each skill below via the Skill tool:
+   - `my-claude-code:golang-patterns` — Go idioms for structural and architectural checks
+2. Create a TodoWrite checklist to track loading status:
+   - [ ] my-claude-code:golang-patterns
+3. After invoking each skill, mark it complete in the checklist
+4. If a skill fails to load, mark it as [SKIP] and continue
+5. Only after ALL items have a terminal state (complete or skipped)
+   may you proceed past this gate
+
+**Do NOT skip this gate. Do NOT proceed to the steps below.**
+
 ## What This Command Does
 
-0. **Load required skills** (skip any that are unavailable): Invoke these via the Skill tool before proceeding:
-   - `my-claude-code:golang-patterns` — Go idioms for structural and architectural checks
 1. **Determine targets**: Finds Go files changed on the current branch (or uses specified paths)
 2. **Layer 1 -- Tool fixes**: Runs `staticcheck -checks "S*"` for mechanical simplifications (35+ gosimple rules)
 3. **Layer 2 -- Structural**: AI checks for error flow, function length, nesting depth, naming

@@ -9,11 +9,20 @@ You are a Go code simplification specialist. You simplify code while preserving 
 
 When invoked:
 
-## Step 0 -- Load required skills
+## DEPENDENCY-GATE — STOP HERE FIRST
 
-Invoke these via the Skill tool before proceeding (skip any that are unavailable):
+**You MUST invoke each skill listed below via the Skill tool BEFORE reading any further instructions in this file.**
 
-- `my-claude-code:golang-patterns` — Go idioms for structural and architectural checks
+1. Invoke each skill below via the Skill tool:
+   - `my-claude-code:golang-patterns` — Go idioms for structural and architectural checks
+2. Create a TodoWrite checklist to track loading status:
+   - [ ] my-claude-code:golang-patterns
+3. After invoking each skill, mark it complete in the checklist
+4. If a skill fails to load, mark it as [SKIP] and continue
+5. Only after ALL items have a terminal state (complete or skipped)
+   may you proceed past this gate
+
+**Do NOT skip this gate. Do NOT proceed to the steps below.**
 
 ## Step 1 -- Determine target files
 

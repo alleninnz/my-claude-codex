@@ -1,7 +1,7 @@
 {
   "name": "my-claude-code",
   "description": "Claude Code plugin for Go development — agents, skills, commands, rules, and hooks. Integrates with superpowers for workflow discipline.",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "author": {
     "name": "Ethan"
   },

@@ -6,6 +6,25 @@ description: Use when creating, running, or debugging Playwright end-to-end test
 
 This command invokes the **e2e-runner** agent to generate, maintain, and execute end-to-end tests using Playwright.
 
+## DEPENDENCY-GATE — STOP HERE FIRST
+
+**You MUST invoke each skill listed below via the Skill tool BEFORE reading any further instructions in this file.**
+
+Loading order: my-claude-code skills first, then superpowers skills.
+
+1. Invoke each skill below via the Skill tool:
+   - `my-claude-code:e2e-testing` — Playwright patterns, POM, configuration
+   - `superpowers:verification-before-completion` — evidence-based completion verification
+2. Create a TodoWrite checklist to track loading status:
+   - [ ] my-claude-code:e2e-testing
+   - [ ] superpowers:verification-before-completion
+3. After invoking each skill, mark it complete in the checklist
+4. If a skill fails to load, mark it as [SKIP] and continue
+5. Only after ALL items have a terminal state (complete or skipped)
+   may you proceed past this gate
+
+**Do NOT skip this gate. Do NOT proceed to the steps below.**
+
 ## What This Command Does
 
 1. **Generate Test Journeys** - Create Playwright tests for user flows

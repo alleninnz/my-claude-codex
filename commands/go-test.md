@@ -6,11 +6,27 @@ description: Use when writing new Go code that needs tests, adding test coverage
 
 This command enforces test-driven development methodology for Go code using idiomatic Go testing patterns.
 
+## DEPENDENCY-GATE — STOP HERE FIRST
+
+**You MUST invoke each skill listed below via the Skill tool BEFORE reading any further instructions in this file.**
+
+Loading order: my-claude-code skills first, then superpowers skills.
+
+1. Invoke each skill below via the Skill tool:
+   - `my-claude-code:golang-testing` — table-driven tests, benchmarks, fuzzing, coverage patterns
+   - `superpowers:test-driven-development` — RED-GREEN-REFACTOR discipline
+2. Create a TodoWrite checklist to track loading status:
+   - [ ] my-claude-code:golang-testing
+   - [ ] superpowers:test-driven-development
+3. After invoking each skill, mark it complete in the checklist
+4. If a skill fails to load, mark it as [SKIP] and continue
+5. Only after ALL items have a terminal state (complete or skipped)
+   may you proceed past this gate
+
+**Do NOT skip this gate. Do NOT proceed to the steps below.**
+
 ## What This Command Does
 
-0. **Load required skills** (skip any that are unavailable): Invoke these via the Skill tool before proceeding:
-   - `superpowers:test-driven-development` — RED-GREEN-REFACTOR discipline
-   - `my-claude-code:golang-testing` — table-driven tests, benchmarks, fuzzing, coverage patterns
 1. **Define Types/Interfaces**: Scaffold function signatures first
 2. **Write Table-Driven Tests**: Create comprehensive test cases (RED)
 3. **Run Tests**: Verify tests fail for the right reason
