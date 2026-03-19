@@ -29,7 +29,6 @@ Optional — install superpowers for TDD, code review, and debugging discipline:
 | `/go-test` | (inline) | TDD workflow: table-driven tests → implement → verify 80%+ coverage |
 | `/go-build` | go-build-resolver | Fix build errors, `go vet` warnings, linter issues — one fix at a time |
 | `/e2e` | e2e-runner | Generate and run Playwright E2E tests |
-| `/cr-review` | cr-reviewer | Run CodeRabbit AI review on pull requests |
 | `/go-simplify` | go-simplifier | Simplify Go code while preserving functionality |
 
 ## Skills
@@ -38,6 +37,7 @@ Skills run in the main conversation context (no agent subprocess).
 
 | Skill | What it does |
 |-------|-------------|
+| `/cr-review` | Run CodeRabbit CLI review with interactive issue selection |
 | `/pr-review` | Interactive per-comment review of AI reviewer feedback on current PR |
 | `/ultrawork` | Decompose tasks, route to model tiers, dispatch parallel subagents |
 | `golang-patterns` | Go idioms, error handling, concurrency, interfaces, package design |
@@ -68,6 +68,7 @@ Loading order: my-claude-code skills first (domain knowledge), then superpowers 
 | /go-build, go-build-resolver | golang-patterns | systematic-debugging |
 | /e2e, e2e-runner | e2e-testing | verification-before-completion |
 | /go-simplify, go-simplifier | golang-patterns | — |
+| /cr-review | — | — |
 | /ultrawork | — | — (self-contained) |
 | /pr-review | — | — |
 

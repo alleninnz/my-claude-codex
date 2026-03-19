@@ -17,10 +17,10 @@ Pattern 1: Command → Agent → DEPENDENCY-GATE loads skills via Skill tool
 /go-review   → go-reviewer       → golang-patterns + requesting-code-review
 /go-test     → (inline TDD)      → golang-testing + test-driven-development
 /e2e         → e2e-runner        → e2e-testing + verification-before-completion
-/cr-review   → cr-reviewer       → (none)
 /go-simplify → go-simplifier     → golang-patterns
 
 Pattern 2: Skill (main context) — no agent, runs interactively
+/cr-review   → CodeRabbit CLI review with interactive issue selection
 /ultrawork   → parallel task decomposition and dispatch
 /pr-review   → interactive per-comment AI review processing
 ```
@@ -31,9 +31,9 @@ my-claude-code skills load first (domain knowledge), then superpowers skills (pr
 
 | Type | Items |
 |------|-------|
-| Agents (5) | go-reviewer, go-build-resolver, e2e-runner, cr-reviewer, go-simplifier |
-| Skills (9) | golang-patterns, golang-testing, api-design, mysql-aurora-patterns, e2e-testing, article-writing, agentic-engineering, pr-review, ultrawork |
-| Commands (6) | /go-build, /go-review, /go-test, /e2e, /cr-review, /go-simplify |
+| Agents (4) | go-reviewer, go-build-resolver, e2e-runner, go-simplifier |
+| Skills (10) | golang-patterns, golang-testing, api-design, mysql-aurora-patterns, e2e-testing, article-writing, agentic-engineering, pr-review, ultrawork, cr-review |
+| Commands (5) | /go-build, /go-review, /go-test, /e2e, /go-simplify |
 | Rules (5) | Go-scoped: coding-style, testing, security, patterns, hooks |
 | Hooks (2) | pre-commit Go/proto format, generated file guard |
 | Contexts (3) | dev (code first), research (explore first), review (read-only) |
