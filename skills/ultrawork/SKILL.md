@@ -70,10 +70,10 @@ PARALLEL:
 SEQUENTIAL (after parallel):
 4. [sonnet] Integration test — tests/integration/
 
-Run this plan? (yes / adjust):
+Dispatching...
 ```
 
-Wait for user confirmation. If "adjust", revise and re-present.
+Announce the plan for transparency, then immediately dispatch. Do not wait for confirmation.
 
 ### 4. Dispatch
 
