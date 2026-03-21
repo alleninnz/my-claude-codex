@@ -21,7 +21,6 @@ Pattern 1: Command → Agent → DEPENDENCY-GATE loads skills via Skill tool
 
 Pattern 2: Skill (main context) — no agent, runs interactively
 /cr-review   → CodeRabbit CLI review with interactive issue selection
-/ultrawork   → parallel task decomposition and dispatch
 /pr-review   → interactive per-comment AI review processing
 ```
 
@@ -32,7 +31,7 @@ my-claude-code skills load first (domain knowledge), then superpowers skills (pr
 | Type | Items |
 |------|-------|
 | Agents (4) | go-reviewer, go-build-resolver, e2e-runner, go-simplifier |
-| Skills (10) | golang-patterns, golang-testing, api-design, mysql-aurora-patterns, e2e-testing, article-writing, agentic-engineering, pr-review, ultrawork, cr-review |
+| Skills (9) | golang-patterns, golang-testing, api-design, mysql-aurora-patterns, e2e-testing, article-writing, agentic-engineering, pr-review, cr-review |
 | Commands (5) | /go-build, /go-review, /go-test, /e2e, /go-simplify |
 | Rules (5) | Go-scoped: coding-style, testing, security, patterns, hooks |
 | Hooks (2) | pre-commit Go/proto format, generated file guard |
