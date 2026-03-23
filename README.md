@@ -60,16 +60,6 @@ Optional. Everything works without it, but superpowers adds process discipline v
 
 Loading order: my-claude-code skills first (domain knowledge), then superpowers skills (process framework). Skills that fail to load are marked `[SKIP]` — commands degrade gracefully.
 
-| Component | my-claude-code skill | superpowers skill |
-|-----------|---------------------|-------------------|
-| /go-review, go-reviewer | golang-patterns | requesting-code-review |
-| /go-test | golang-testing | test-driven-development |
-| /go-build, go-build-resolver | golang-patterns | systematic-debugging |
-| /e2e, e2e-runner | e2e-testing | verification-before-completion |
-| /go-simplify, go-simplifier | golang-patterns | — |
-| /cr-review | — | — |
-| /pr-review | — | — |
-
 ## License
 
 MIT
