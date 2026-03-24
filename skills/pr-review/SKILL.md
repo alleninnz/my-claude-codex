@@ -23,6 +23,29 @@ Extract `{owner}` and `{repo}` from the URL (e.g. `https://github.com/Org/repo/p
 
 If no PR exists for the current branch, report and stop.
 
+## Step 1.5 — Fetch unresolved thread IDs
+
+Before fetching comments, get the set of **unresolved** review thread comment IDs. Only comments belonging to unresolved threads should be processed — resolved threads are already handled and must be skipped entirely.
+
+```bash
+gh api graphql -F owner='{owner}' -F repo='{repo}' -F number={number} -f query='
+  query($owner: String!, $repo: String!, $number: Int!) {
+    repository(owner: $owner, name: $repo) {
+      pullRequest(number: $number) {
+        reviewThreads(first: 100) {
+          nodes {
+            id
+            isResolved
+            comments(first: 1) { nodes { databaseId } }
+          }
+        }
+      }
+    }
+  }' --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | .comments.nodes[0].databaseId]'
+```
+
+Store this as the **unresolved comment ID set**. Only review comments whose `id` appears in this set will be processed in Step 2.
+
 ## Step 2 — Fetch AI reviewer comments
 
 Fetch **review comments** (inline on code), top-level only:
@@ -33,6 +56,8 @@ gh api repos/{owner}/{repo}/pulls/{number}/comments \
   --jq '[.[] | select(.user.type == "Bot") | select(.in_reply_to_id == null) | {id: .id, path: .path, line: .line, body: .body, user: .user.login}]'
 ```
 
+**Filter review comments to only those whose `id` is in the unresolved comment ID set from Step 1.5.** Discard all resolved comments silently — do not count them, present them, or mention them.
+
 Fetch **issue comments** (PR-level):
 
 ```bash
@@ -41,9 +66,10 @@ gh api repos/{owner}/{repo}/issues/{number}/comments \
   --jq '[.[] | select(.user.type == "Bot") | {id: .id, body: .body, user: .user.login, type: "issue_comment"}]'
 ```
 
+Note: Issue comments do not have review threads, so they cannot be filtered by resolution status. Skip issue comments that are purely summaries with no actionable findings (e.g. CodeRabbit summary tables).
+
 - Only process top-level comments (`in_reply_to_id` is null for review comments)
-- Skip issue comments that are purely summaries with no actionable findings (e.g. CodeRabbit summary tables)
-- If no actionable AI reviewer comments found, report "No AI review comments found" and stop
+- If no actionable AI reviewer comments found after filtering, report "No AI review comments found" and stop
 
 ## Step 2.5 — Partition outdated comments
 
