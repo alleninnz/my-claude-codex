@@ -5,7 +5,7 @@ description: Use when the current PR has AI reviewer comments (CodeRabbit, Curso
 
 # PR Review
 
-Interactive review of AI reviewer comments on the current PR. Dispatches a subagent to silently gather and classify comments, then presents results for interactive review.
+Interactive review of all unresolved PR review comments — both AI reviewer (CodeRabbit, Cursor, Copilot, etc.) and human reviewer comments. Dispatches a subagent to silently gather and classify comments, then presents results for interactive review.
 
 ## Prerequisites
 
@@ -18,14 +18,14 @@ Dispatch a subagent using the prompt template in `data-gather.md`. The subagent 
 
 - Identifies the PR and repo
 - Fetches unresolved review threads
-- Fetches bot comments, filters to unresolved only
+- Fetches all comments (bot and human), filters to unresolved only
 - Partitions outdated comments
 - Auto-triages Copilot comments (high false-positive rate)
 - Classifies severity and deduplicates
 
 The subagent returns structured data with: `pr`, `outdated[]`, `copilot_triage[]`, `critical_major[]`, `medium_low[]`, and `thread_map[]`.
 
-If the subagent reports no comments, output "No AI review comments found" and stop.
+If the subagent reports no comments, output "No review comments found" and stop.
 
 ## Step 2 — Present triage summaries
 

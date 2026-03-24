@@ -28,23 +28,23 @@ gh api graphql -F owner='{owner}' -F repo='{repo}' -F number={number} -f query='
 
 Store as the unresolved comment ID set.
 
-## Step 2: Fetch bot comments
+## Step 2: Fetch all comments (bot + human)
 
 Review comments (inline, top-level only):
 
 gh api repos/{owner}/{repo}/pulls/{number}/comments --paginate \
-  --jq '[.[] | select(.user.type == "Bot") | select(.in_reply_to_id == null) | {id: .id, path: .path, line: .line, body: .body, user: .user.login}]'
+  --jq '[.[] | select(.in_reply_to_id == null) | {id: .id, path: .path, line: .line, body: .body, user: .user.login, user_type: .user.type}]'
 
 Filter to only those whose id is in the unresolved set. Discard resolved.
 
 Issue comments (PR-level):
 
 gh api repos/{owner}/{repo}/issues/{number}/comments --paginate \
-  --jq '[.[] | select(.user.type == "Bot") | {id: .id, body: .body, user: .user.login, type: "issue_comment"}]'
+  --jq '[.[] | select(.user.type == "Bot") | {id: .id, body: .body, user: .user.login, user_type: .user.type, type: "issue_comment"}]'
 
-Skip issue comments that are purely summaries (CodeRabbit walkthrough tables, Datadog CI reports, etc.).
+Skip issue comments that are purely summaries (CodeRabbit walkthrough tables, Datadog CI reports, etc.). Only bot issue comments are fetched (human PR-level comments are conversational, not actionable review items).
 
-If no actionable comments found, return: "No AI review comments found."
+If no actionable comments found, return: "No review comments found."
 
 ## Step 3: Partition outdated
 
@@ -54,15 +54,17 @@ For each outdated comment, generate a one-line plain-language summary.
 
 ## Step 4: Triage Copilot comments
 
-Separate active comments into Copilot (user contains "copilot" case-insensitive) and non-Copilot.
+From the **bot** comments only, separate into Copilot (user contains "copilot" case-insensitive) and non-Copilot.
 
 For each Copilot comment, read the referenced code and assess:
 - Noise: style nitpicks, incorrect claims, suggestions already handled, duplicates → skip
 - Legitimate: real bugs, missing error handling, actual logic issues → promote
 
+Human comments (`user_type == "User"`) are NEVER auto-triaged or auto-skipped — they always go to classification in Step 5.
+
 ## Step 5: Classify and deduplicate
 
-For all active non-Copilot + promoted Copilot comments:
+For all active comments: human comments + non-Copilot bot comments + promoted Copilot comments:
 
 Classify severity:
 - Critical: Security vulnerabilities, data loss, logic errors, crash/panic
@@ -96,10 +98,10 @@ For each: [bot] path — one-line summary (include comment ID)
 For each: ✗/✓ path:line — summary — reason (include comment ID)
 
 ### Critical/Major (N)
-For each: [severity] path:line (bot) — summary (include comment ID, all IDs for dedup groups)
+For each: [severity] path:line (reviewer) — summary (include comment ID, all IDs for dedup groups, mark human reviewers)
 
 ### Medium/Low (N)
-For each: [severity] path:line (bot) — summary (include comment ID, all IDs for dedup groups)
+For each: [severity] path:line (reviewer) — summary (include comment ID, all IDs for dedup groups, mark human reviewers)
 
 ### Thread Map
 For each: commentId → threadId
