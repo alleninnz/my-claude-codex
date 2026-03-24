@@ -7,6 +7,22 @@ description: Use when the current PR has AI reviewer comments (CodeRabbit, Curso
 
 Interactive review of AI reviewer comments on the current PR. Comments are classified by severity — Critical/Major get deep per-comment analysis with interactive review; Medium/Low default to skip with rescue capability.
 
+## Output Discipline
+
+**Steps 1 through 2.9 are silent.** Do NOT output step labels, progress updates, or intermediate results to the terminal. The only visible output should be:
+
+- **Outdated batch summary** (Step 2.5) — if any exist
+- **Copilot triage summary** (Step 2.75) — if any Copilot comments exist
+- **Critical/Major interactive review** (Step 3A) — per-comment deep analysis
+- **Medium/Low overview list** (Step 3B) — classification table with recommendations
+- **Review summary** (Step 4) — final counts
+- **Thread resolution status** (Step 5) — "All N threads resolved"
+- **AskUserQuestion prompts** — interactive decisions
+
+Everything else (fetching threads, fetching comments, filtering, deduplication) happens silently. Do not narrate what you are doing — just do it and present results.
+
+For Bash tool calls during silent steps, use minimal descriptions (e.g., just the API endpoint) and do not echo the output in text.
+
 ## Prerequisites
 
 - `gh` CLI installed and authenticated
