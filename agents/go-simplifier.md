@@ -128,6 +128,16 @@ model: opus
     - Helper function called only once (inline it)
     - Redundant error wrapping at intermediate layers
 
+    **Helper extraction quality gate — before proposing any "extract helper" simplification, verify ALL of these:**
+
+    1. The helper has ≤2 return values (3+ returns = the extraction couples unrelated concerns)
+    2. The helper does ONE thing (not parsing + validation + logging + auth in one function)
+    3. The call site is easier to understand than the original inline code
+    4. The duplicated block is >30 lines (shorter duplication is acceptable — three similar lines > a premature helper)
+    5. The original handlers are still readable top-to-bottom without the helper
+
+    If any check fails, leave the duplication. Duplication is cheaper than the wrong abstraction.
+
     Present a numbered summary:
 
     ```text
@@ -186,8 +196,11 @@ model: opus
       logic in ways that affect control flow. Instead, only change internal structure.
     - **Scope creep**: Refactoring files that were not in the target list. Instead, stay within
       the specified files.
-    - **Over-abstraction**: Introducing new helpers for one-time use. Instead, keep code inline
-      when abstraction adds no clarity.
+    - **Over-abstraction**: Introducing helpers that couple unrelated concerns or require 3+
+      return values. A function returning `(int32, []int32, *log.Entry, error)` is worse than
+      20 duplicated lines. Also applies to one-time-use helpers. Instead, keep code inline
+      when the handler is still readable top-to-bottom (~40 lines). Duplication is cheaper
+      than the wrong abstraction.
     - **Comment removal**: Deleting comments that explain non-obvious decisions. Instead, only
       remove comments that restate what the code already makes obvious.
     - **Brevity over clarity**: Collapsing code into dense one-liners that are harder to read.
