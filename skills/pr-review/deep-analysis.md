@@ -1,26 +1,26 @@
-# Deep Analysis — Methodology and Presentation Templates
+# Deep Analysis — Methodology and Presentation
 
 ## Analysis inputs
 
-Before presenting a Critical/Major comment (or a rescued Medium/Low comment), gather three inputs:
+Before presenting a Critical/Major comment (or a rescued Medium/Low comment), gather:
 
-1. **git diff** — run `git diff $(gh pr view --json baseRefName -q .baseRefName)...HEAD -- {path}` to get the PR's changes for the file, focused on the comment's location
-2. **Function-level context** — read the full function/method containing the flagged line (not the entire file)
-3. **Project conventions** — check CLAUDE.md, linter config, and surrounding code patterns for relevant conventions
+1. **git diff** — `git diff $(gh pr view --json baseRefName -q .baseRefName)...HEAD -- {path}` focused on the comment's location
+2. **Function-level context** — the full function/method containing the flagged line (not the entire file)
+3. **Project conventions** — CLAUDE.md, linter config, surrounding code patterns
 
-For PR-level issue comments (no file path): use the PR description and overall diff summary instead of file-specific diff and function context.
+For PR-level issue comments (no file path): use the PR description and overall diff summary instead.
 
 If a file was deleted/renamed, check `git log --diff-filter=R --find-renames -- {path}`.
 
 ## Severity re-evaluation
 
-After deep analysis, Claude may upgrade or downgrade the comment's severity:
+After deep analysis, Claude may upgrade or downgrade:
 
-- If downgraded below Major → move to Medium/Low overview list (Step 3B), do not present interactively. Retain the gathered deep analysis context — if the user rescues this comment in Step 3B, reuse it instead of re-reading files
-- If upgraded → reflect in display header (e.g., `[Medium → Critical]`)
-- If all Critical/Major comments are downgraded during deep analysis, skip Step 3A interaction entirely and proceed to Step 3B with all comments
+- Downgraded below Major → move to Medium/Low overview (Step 4), retain gathered context for reuse if rescued
+- Upgraded → reflect in header (e.g., `[Medium → Critical]`)
+- If all Critical/Major comments downgrade, skip Step 3 and proceed to Step 4
 
-## Presentation template — single comment
+## Presentation template
 
 ```text
 ── 1/N ── [Critical] ── [coderabbit] ──────────
@@ -31,8 +31,7 @@ After deep analysis, Claude may upgrade or downgrade the comment's severity:
 
 **Analysis:**
 <2-3 sentences: what the reviewer flagged, why it matters (or doesn't),
-impact on current code. If Claude disagrees with reviewer, state the
-disagreement and reasoning explicitly.>
+impact on current code. State disagreement explicitly if you disagree.>
 
 **Recommendation:** Fix / Skip
 <1-sentence rationale>
@@ -42,37 +41,14 @@ disagreement and reasoning explicitly.>
 </details>
 ```
 
-**MANDATORY: You MUST use the `AskUserQuestion` tool here — do NOT present options as text.** Place your recommended option first with "(Recommended)" appended. For example, if recommending Skip: `options: ["Skip (Recommended)", "Fix", "Discuss"]`. If recommending Fix: `options: ["Fix (Recommended)", "Skip", "Discuss"]`. If the user selects "Discuss", follow up with a freeform `AskUserQuestion` to get their input.
-
-## Presentation template — deduplicated group
-
-```text
-── 1/N ── [Major] ── 2 comments grouped ──────
-📍 path/to/file.go:42 (coderabbit, copilot)
-
-**Diff:**
-<shared diff snippet>
-
-**Analysis:**
-<merged analysis, noting each reviewer's angle if different>
-
-**Recommendation:** Fix / Skip
-<rationale>
-
-<details><summary>Original comments (2)</summary>
-[coderabbit] ...
-[copilot] ...
-</details>
-```
-
-Same **mandatory `AskUserQuestion`** with recommended option first (see single comment template above).
+For **deduplicated groups**: replace header with `── 1/N ── [Major] ── 2 comments grouped ──`, show `📍 path/to/file.go:42 (coderabbit, copilot)`, merge analysis noting each reviewer's angle, and wrap originals in `<details><summary>Original comments (2)</summary>`.
 
 Omit `📍` and `**Diff:**` for PR-level issue comments.
 
 ## User responses
 
-**MUST use `AskUserQuestion` tool** (not text-based options) for every comment. Place recommended option first with "(Recommended)" suffix. The user selects with arrow keys.
+**MUST use `AskUserQuestion` tool** (not text options) for every comment. Place recommended option first with "(Recommended)" suffix.
 
 - **Fix** — Queue for fixing. Record what to change. Next comment.
 - **Skip** — Next comment.
-- **Discuss** — Follow up with a freeform `AskUserQuestion` asking the user to explain. After discussion resolves, re-present with `AskUserQuestion` using `options: ["Fix (Recommended)", "Skip"]` for final decision (no more Discuss option).
+- **Discuss** — Follow up with freeform `AskUserQuestion`. After discussion, re-present with `["Fix (Recommended)", "Skip"]` (no more Discuss).
