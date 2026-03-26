@@ -22,7 +22,7 @@ Pattern 1: Command → Agent → DEPENDENCY-GATE loads skills via Skill tool
 Pattern 2: Skill (main context) — no agent, runs interactively
 /cr-review   → CodeRabbit CLI review with interactive issue selection
 /pr-review   → interactive per-comment AI review processing
-/pr-ops      → PR lifecycle operations (status, merge, draft, list, CI, close)
+/pr-ops      → PR lifecycle: create (draft), open, draft, close, reopen, update
 ```
 
 my-claude-code skills load first (domain knowledge), then superpowers skills (process framework). Degrades gracefully without superpowers.
