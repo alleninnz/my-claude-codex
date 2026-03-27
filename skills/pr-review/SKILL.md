@@ -73,7 +73,7 @@ Each entry must include: what the reviewer wants (plain language), your recommen
    Reviewer wants: Remove unused `opts` parameter from function signature.
    Recommendation: Skip — matches existing codebase convention.
 
-Enter numbers to rescue for deep review (e.g. 1,2), or press Enter to skip all:
+Enter numbers to rescue for deep review, or prefix with 'fix' to queue directly:
 ```
 
 | User input | Behavior |
@@ -81,8 +81,14 @@ Enter numbers to rescue for deep review (e.g. 1,2), or press Enter to skip all:
 | Enter (empty) | All skip, proceed to Step 5 |
 | `1,3` | Deep-analyze selected using Step 3 process, rest skip |
 | `all` | Rescue all, present each using Step 3 |
+| `fix 2` or `fix 1,3` | Queue selected directly for fixing — no deep review |
+| `fix all` | Queue all directly — no deep review |
+
+**Fast-fix flow:** Comments queued via `fix` skip deep analysis entirely. The Step 4 summary is the analysis — no further investigation needed. Queued comments appear in the Step 5 fix list alongside any fixes from Step 3.
 
 **Rescue flow:** Deep-analyze using `deep-analysis.md`, present with same template. If severity upgraded, show change in header (e.g., `[Medium → Major]`). User responds with `fix` or `skip`.
+
+**Mixed input:** Users can combine both in one response (e.g., `1, fix 2` — rescue #1 for deep review, fast-fix #2). Parse each token independently.
 
 ## Step 5 — Apply queued fixes
 
