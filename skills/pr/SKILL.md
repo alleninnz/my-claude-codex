@@ -1,6 +1,6 @@
 ---
 name: pr
-description: Use when creating or updating pull requests — generates accurate titles and descriptions from the diff. Also covers PR state changes (draft, ready, close, reopen).
+description: Use when creating or updating pull requests — generates accurate titles and descriptions from the diff. Also covers PR state changes (draft, ready, close, reopen, merge).
 ---
 
 # Pull Request
@@ -26,9 +26,20 @@ Smart PR creation and updates with diff-based description generation.
 4. Update: `gh pr edit --body "<body>"`
 5. Title is preserved unless the user explicitly asks to change it
 
+## merge — Squash merge and clean up branches
+
+1. Confirm with user before proceeding
+2. Merge: `gh pr merge --squash`
+3. Get base branch: `gh pr view --json baseRefName -q .baseRefName`
+4. Switch and update: `git checkout <base> && git pull`
+5. Delete remote branch: `git push origin --delete <merged-branch>`
+6. Delete local branch: `git branch -d <merged-branch>`
+7. If merge fails (checks, conflicts): report error and stop — do not clean up
+8. If branch cleanup fails after successful merge: warn but don't error
+
 ## State Changes
 
-- **Confirm before:** `close`, `reopen`
+- **Confirm before:** `merge`, `close`, `reopen`
 - **No confirmation:** `open` (mark ready), `draft` (convert to draft)
 - Never use `--delete-branch` with close
 
