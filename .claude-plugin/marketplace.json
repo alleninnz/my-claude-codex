@@ -9,7 +9,7 @@
     {
       "name": "my-claude-code",
       "description": "Claude Code plugin for Go development — agents, skills, and commands",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "source": "./",
       "category": "development",
       "homepage": "https://github.com/alleninnz/my-claude-code"

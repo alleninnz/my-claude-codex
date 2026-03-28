@@ -1,12 +1,12 @@
 {
   "name": "my-claude-code",
   "description": "Claude Code plugin for Go development — agents, skills, and commands.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": {
     "name": "Ethan"
   },
   "repository": "https://github.com/alleninnz/my-claude-code",
   "homepage": "https://github.com/alleninnz/my-claude-code",
   "license": "MIT",
-  "keywords": ["golang", "go", "agents", "skills"]
+  "keywords": ["golang", "go", "agents", "skills", "mysql"]
 }
