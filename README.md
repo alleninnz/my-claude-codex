@@ -22,6 +22,7 @@ Claude Code plugin for Go development — agents, skills, and commands.
 | `pr` | Create and update PRs with diff-based title/description generation |
 | `resolving-pr-comments` | Interactive per-comment review of AI reviewer feedback on current PR |
 | `writing-articles` | Technical articles, voice capture, evidence-first writing |
+| `go-playbook` | Go 1.21-1.26 patterns — error handling, concurrency, testing, performance, gRPC |
 | `mysql-aurora-playbook` | MySQL 8.0 & Aurora MySQL 3 patterns — indexes, types, queries, DDL, monitoring |
 
 ## License
