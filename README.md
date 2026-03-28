@@ -24,6 +24,7 @@ Claude Code plugin for Go development — agents, skills, and commands.
 | `writing-articles` | Technical articles, voice capture, evidence-first writing |
 | `go-playbook` | Go 1.21-1.26 patterns — error handling, concurrency, testing, performance, gRPC |
 | `mysql-aurora-playbook` | MySQL 8.0 & Aurora MySQL 3 patterns — indexes, types, queries, DDL, monitoring |
+| `skill-guiding` | Browse and discover installed skills from user directory and marketplace plugins |
 
 ## Rules
 
