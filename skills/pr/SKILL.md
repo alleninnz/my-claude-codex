@@ -55,8 +55,8 @@ Smart PR creation and updates with diff-based description generation.
 4. Confirm with user: show the generated subject and body, then ask to proceed
 5. Merge: `gh pr merge --squash --subject "<subject>" --body "<body>"`
 6. Switch and update: `git checkout <base> && git pull`
-7. Delete remote branch: `git push origin --delete <merged-branch>`
-8. Delete local branch: `git branch -d <merged-branch>`
+7. Delete local branch: `git branch -d <merged-branch>`
+8. Prune stale remote refs: `git fetch --prune`
 9. If merge fails (checks, conflicts): report error and stop — do not clean up
 10. If branch cleanup fails after successful merge: warn but don't error
 
