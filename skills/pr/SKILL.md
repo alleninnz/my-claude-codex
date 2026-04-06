@@ -10,18 +10,18 @@ Smart PR creation and updates with diff-based description generation.
 ## create — Create a new PR (always draft)
 
 1. Determine base branch: repo default (usually `main`), or user-specified
-2. Infer ticket ID (check in order, stop at first match):
+2. Infer issue ID (check in order, stop at first match):
    - User's arguments (e.g. `/pr create APP-21395`)
    - Branch name (e.g. `feat/app-21395-...` → `APP-21395`)
    - Commit messages (e.g. `APP-21395 | ...` or `(APP-21395)`)
    - Recent conversation context (e.g. a Linear issue just discussed)
-   - If no ticket ID found, ask the user before proceeding
+   - If no issue ID found, proceed without one (omit issue prefix from title)
 3. Get diff: `git diff $(git merge-base HEAD <base>)..HEAD`
-4. Generate title: `<TICKET-ID> | <conventional-commit style>`, imperative mood, under 70 chars
+4. Generate title: `<ISSUE-ID> | <conventional-commit style>`, imperative mood, under 70 chars
 5. Generate body (adaptive):
    - Small diff (<100 changed lines): 1-3 bullet summary
    - Larger diff: `## Summary` (3-5 bullets) + `## Test plan` (checklist)
-   - Include `Closes <TICKET-ID>` before the footer
+   - Include `Closes <ISSUE-ID>` before the footer
    - Footer: `Generated with [Claude Code](https://claude.com/claude-code)`
 6. Create: `gh pr create --draft --title "<title>" --body "<body>"`
 
@@ -46,7 +46,7 @@ Smart PR creation and updates with diff-based description generation.
    - `git log --oneline $(git merge-base HEAD <base>)..HEAD`
    - `git diff $(git merge-base HEAD <base>)..HEAD`
 3. Generate squash commit message:
-   - **Subject**: PR title as-is (preserve ticket ID and conventional-commit style)
+   - **Subject**: PR title as-is (preserve issue ID and conventional-commit style)
    - **Body**: Generate an extended description from the diff and commit history:
      - One-sentence summary of the change's purpose (the "why")
      - Bulleted list of notable changes grouped by theme (not file-by-file — describe what changed functionally)
