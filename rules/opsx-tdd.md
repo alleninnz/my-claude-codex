@@ -1,6 +1,6 @@
 ---
 paths:
-  - "openspec/**"
+  - "**/*.go"
 ---
 
 When implementing tasks via `opsx:apply` slash command, each task MUST follow TDD discipline.
