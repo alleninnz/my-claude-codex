@@ -53,69 +53,97 @@ Show the subagent's triage results. Only show sections that have content:
 
 ## Step 3 — Critical/Major interactive review
 
-For each Critical/Major comment (or deduplicated group), perform deep analysis before presentation.
+**MUST** present Critical/Major comments **one at a time**. **DO NOT** batch or group multiple comments in a single message.
 
-Read `deep-analysis.md` for the methodology, severity re-evaluation rules, and presentation template.
+For each comment (or deduplicated group):
 
-**Auto-queue defaults:** Critical/Major comments have been deep-analyzed, so their recommendations are high-confidence. After presenting all comments, show a defaults summary. "Fix" recommendations are auto-queued, "Skip" recommendations are auto-skipped:
-
-```text
-── Defaults ──────────────────────────
-Auto-queued:  #2 path traversal in removeNested (Fix)
-Auto-skipped: #1 breaking change .worktrees → worktrees (Skip)
-
-Override? (e.g., 'skip 2' or 'fix 1', 'ok' to confirm):
-```
+1. Perform deep analysis — read `deep-analysis.md` for methodology, severity re-evaluation rules, and the unified presentation template
+2. Present the comment using the unified template — every comment **MUST** include all fields: Problem, Wants, Diff, Analysis, Recommendation. **DO NOT** skip any field.
+3. Ask: `Fix or skip?`
+4. Record the user's decision, move to next comment
 
 | User input | Behavior |
 |------------|----------|
-| `ok` or `done` | Confirm all defaults, proceed to Step 4 |
-| `skip 2` or `skip 1,2` | Override: skip those items, rest keep defaults |
-| `fix 1` or `fix 1,3` | Override: queue those items for fix, rest keep defaults |
-| `skip all` | Override all to skip |
-| `fix all` | Override all to fix |
+| `fix` | Queue for fix, move to next comment |
+| `skip` | Skip, move to next comment |
 
-Users can combine overrides in one response (e.g., `fix 1, skip 2`).
+**Severity re-evaluation during deep analysis:** If a comment is downgraded below Major, do not present it here — move it to Step 4 (Medium/Low batch). If all Critical/Major comments are downgraded, skip this step entirely.
 
-If all Critical/Major comments are downgraded during deep analysis, skip this step and merge them into Step 4.
+## Step 4 — Medium/Low batch review
 
-## Step 4 — Medium/Low overview + rescue
+**MUST** present all Medium/Low comments (including any downgraded from Step 3) using the unified template — but without Diff (no deep analysis prerequisite). Problem, Wants, and Analysis fields come directly from the data-gather subagent output.
 
-Present all Medium/Low comments (including any downgraded from Step 3) as a numbered overview. Each entry shows the recommendation inline. **Default action is skip all** — Medium/Low items have not been deep-analyzed, so they require explicit opt-in. The user types `y` to accept all recommendations, or overrides specific items.
+Every Medium/Low comment **MUST** use the same template structure as Critical/Major. **DO NOT** collapse Medium/Low comments into one-line summaries. Reduced depth means shorter content per field, not fewer fields:
+- Problem: 1 sentence — **MUST** be present
+- Wants: 1 sentence — **MUST** be present
+- Analysis: 1 sentence — **MUST** be present
+- Recommendation: **MUST** be present
+- Original comment: **MUST** be present (collapsed)
+- No Diff section
 
-Each entry must include: what the reviewer wants (plain language), your recommendation (Fix/Skip), and brief reasoning.
+Present all comments as a numbered batch, then show the defaults summary:
 
-```text
-── Medium/Low (N comments, default skip all) ──────
-1. [Medium] path/to/file.go:88 (coderabbit) → Fix
-   Add context cancellation check — real concern, handler runs unbounded.
+````text
+── Medium/Low (N comments) ──────────────────
 
-2. [Low] path/to/model.go:33 (coderabbit) → Skip
-   Remove unused `opts` parameter — matches existing codebase convention.
+── 1/N ── [Medium] ── [coderabbit] ──────────
+📍 path/to/file.go:88
 
-3. [Medium] path/to/handler.go:120 (cursor) → Fix
-   Check IsSkip in removeFlat — same bug pattern as flat rebase.
+**Problem:**
+This handler doesn't check context cancellation — if the request times out, the goroutine keeps running.
 
-── Recommended: fix 1,3 — skip 2
-Accept? (y to accept, 'fix 1,3' to fix, 'review 3' for deep review, 'done' to skip all):
-```
+**Wants:**
+Add a ctx.Done() case in the select to clean up on timeout.
+
+**Analysis:**
+Real concern — the handler runs unbounded with no cancellation check.
+
+**Recommendation:** Fix
+
+<details><summary>Original comment</summary>
+...
+</details>
+
+── 2/N ── [Low] ── [coderabbit] ──────────
+📍 path/to/model.go:33
+
+**Problem:**
+The `opts` parameter is declared but never used.
+
+**Wants:**
+Remove the unused parameter.
+
+**Analysis:**
+Matches existing codebase convention — other handlers keep unused opts.
+
+**Recommendation:** Skip
+
+<details><summary>Original comment</summary>
+...
+</details>
+
+── Defaults ──────────────────────────
+Auto-queued:  #1 context cancellation in handler (Fix)
+Auto-skipped: #2 unused opts param (Skip)
+
+Override? (e.g., 'skip 1' or 'fix 2', 'ok' to confirm):
+````
 
 **Interaction rules:**
 
 | User input | Behavior |
 |------------|----------|
-| `y` or `yes` | Accept all recommendations (fix items marked Fix, skip items marked Skip) |
-| `done` or `skip all` | Skip all, proceed to Step 5 |
-| `fix 1` or `fix 1,3` | Queue selected for fix, skip the rest |
-| `fix all` | Queue all for fix |
-| `review 3` or `review 1,3` | Rescue selected for deep review (Step 3 process), skip the rest |
-| `review all` | Rescue all for deep review |
+| `ok` or `done` | Confirm all defaults, proceed to Step 5 |
+| `skip N` or `skip 1,2` | Override to skip, rest keep defaults |
+| `fix N` or `fix 1,3` | Override to fix, rest keep defaults |
+| `skip all` | Override all to skip |
+| `fix all` | Override all to fix |
+| `review N` or `review 1,3` | Promote selected to deep analysis (read diff + function context), re-present at Critical/Major depth with immediate fix/skip per comment |
+| `review all` | Promote all to deep analysis |
 
-**Combining:** Users can mix in one response (e.g., `fix 1, review 3` — fast-fix #1, deep-review #3, skip the rest). All tokens are keyword-prefixed (`fix`, `review`, `skip`) — bare numbers are not valid input.
+Users can combine in one response (e.g., `fix 1, skip 2, review 3`). All tokens are keyword-prefixed (`fix`, `review`, `skip`).
 
-**Fast-fix flow:** Comments queued via `fix` skip deep analysis entirely. The Step 4 summary is the analysis — no further investigation needed.
-
-**Rescue flow:** Items selected via `review` are deep-analyzed using `deep-analysis.md`, then presented as a batch with the same defaults model as Step 3 (auto-queue Fix recommendations, auto-skip Skip recommendations, user overrides with `ok`/`done`/`skip N`/`fix N`). This allows independent fix/skip decisions per rescued item.
+**`review N` flow:** Deep-analyze using `deep-analysis.md`, then re-present each promoted comment one at a time at Critical/Major depth (with Diff). Each gets an immediate `Fix or skip?` prompt — same as Step 3.
 
 ## Step 5 — Apply queued fixes
 
@@ -145,7 +173,10 @@ If **n**: do NOT commit, push, or resolve.
 
 ## Common mistakes
 
-- **Echoing AI text verbatim** — Translate to plain language. The Analysis section is YOUR independent analysis.
+- **Echoing AI text verbatim** — Problem and Wants **MUST** use natural conversational language. **NEVER** echo reviewer phrasing like "Consider adding..." or "It is recommended that...". The Analysis section is YOUR independent judgment.
+- **Skipping Problem or Wants fields** — Every comment at every severity level **MUST** include Problem and Wants. These fields are NOT optional. DO NOT skip them, even for Low severity.
+- **Collapsing Medium/Low to one-line summaries** — Medium/Low **MUST** use the same template structure as Critical/Major. Reduced depth means shorter sentences, NOT fewer fields.
+- **Batching Critical/Major comments** — Critical/Major **MUST** be presented one at a time. **DO NOT** show multiple Critical/Major comments in a single message.
 - **Shallow analysis without reading diff/context** — For Critical/Major, you MUST read the git diff and function context before presenting.
 - **Agreeing with the reviewer by default** — Form your own judgment. If the concern doesn't apply, say so.
 - **Committing or resolving without asking** — Always ask the user in Step 6.
