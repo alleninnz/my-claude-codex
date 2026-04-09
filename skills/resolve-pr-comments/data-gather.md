@@ -50,7 +50,7 @@ If no actionable comments found, return: "No review comments found."
 
 Review comments where `line` is `null` are outdated. Split into outdated and active groups.
 
-For each outdated comment, generate a one-line plain-language summary.
+For each outdated comment, you MUST generate a one-line plain-language summary, plus Problem and Wants fields in natural language. DO NOT skip these fields for outdated comments.
 
 ## Step 4: Triage Copilot comments
 
@@ -76,7 +76,10 @@ Use reviewer labels as starting point, upgrade based on text content. Downgrade 
 
 Deduplicate: group by same file / adjacent lines (±5) / same concern. Group severity = highest.
 
-Generate a one-line plain-language summary for each comment/group.
+For each comment/group, you MUST generate all three fields — DO NOT skip any:
+- **Problem**: MUST be natural language explaining what's wrong with the code. Write as if explaining to a colleague sitting next to you. DO NOT echo AI reviewer phrasing ("Consider adding...", "It is recommended that...", "Potential issue with..."). DO NOT use hedging language ("may", "could potentially", "it might be beneficial to").
+- **Wants**: MUST state what the reviewer wants done about it, in natural language. Same conversational style. DO NOT copy the reviewer's suggestion verbatim.
+- **Summary**: One-line plain-language summary (used for defaults summary display).
 
 ## Step 6: Build thread map
 
@@ -99,9 +102,13 @@ For each: ✗/✓ path:line — summary — reason (include comment ID)
 
 ### Critical/Major (N)
 For each: [severity] path:line (reviewer) — summary (include comment ID, all IDs for dedup groups, mark human reviewers)
+Problem: <natural language>
+Wants: <natural language>
 
 ### Medium/Low (N)
 For each: [severity] path:line (reviewer) — summary (include comment ID, all IDs for dedup groups, mark human reviewers)
+Problem: <natural language>
+Wants: <natural language>
 
 ### Thread Map
 For each: commentId → threadId
