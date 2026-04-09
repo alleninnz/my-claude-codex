@@ -24,6 +24,7 @@ Claude Code plugin for Go development — agents, skills, and commands.
 | `write-articles` | Technical articles, voice capture, evidence-first writing |
 | `go-playbook` | Go 1.21-1.26 patterns — error handling, concurrency, testing, performance, gRPC |
 | `mysql-aurora-playbook` | MySQL 8.0 & Aurora MySQL 3 patterns — indexes, types, queries, DDL, monitoring |
+| `tdd-checkpoint` | Enforce one-test-at-a-time TDD discipline with periodic review checkpoints |
 | `skill-guiding` | Browse and discover installed skills from user directory and marketplace plugins |
 
 ## Rules
@@ -34,6 +35,9 @@ Claude Code plugin for Go development — agents, skills, and commands.
 |------|-------------|--------------|
 | `go-playbook.md` | `**/*.go`, `**/go.mod`, `**/go.sum` | Auto-invokes the go-playbook skill when touching Go files |
 | `go-quality.md` | `**/*.go` | Enforces stdlib-first, no-reinvention policy for Go code |
+| `go-error-ownership.md` | `**/*.go` | Enforces single-owner error handling — no duplicate logging, trace before fixing |
+| `opsx-tdd.md` | `**/*.go` | Enforces RED→GREEN→REFACTOR TDD discipline for `opsx:apply` tasks |
+| `tdd-checkpoint.md` | `**/*_test.go` | Auto-invokes the tdd-checkpoint skill when writing Go tests |
 | `mysql-aurora-playbook.md` | `**/*.sql`, `**/schema/**`, `**/migrations/**`, `**/migrate/**` | Auto-invokes the mysql-aurora-playbook skill for database work |
 
 ## License
