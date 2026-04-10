@@ -16,6 +16,7 @@ Interactive review of all unresolved PR review comments — both AI reviewer (Co
 
 - **`gh` CLI only** — use `gh api` (via Bash tool) for all GitHub API calls. **NEVER** use GitHub MCP tools.
 - **Critical/Major fix/skip decisions** — **MUST** use `AskUserQuestion` with choices `["Fix", "Skip"]`. This renders interactive buttons instead of plain text.
+- **Commit/push/resolve confirmation (Step 6)** — **MUST** use `AskUserQuestion` with choices `["Yes", "No"]`. Plain text questions do not block execution in auto mode — Claude will continue without waiting for the user's answer.
 - **Medium/Low batch interaction** — use freeform text (no `AskUserQuestion`). The complex interaction model (`fix 1, skip 2, review 3`) doesn't fit button choices.
 
 ## Step 1 — Gather and classify comments (silent)
@@ -182,10 +183,12 @@ If fixes queued: apply all fixes, **MUST** run build/lint/test to verify — **D
 
 ## Step 6 — Commit, push, and resolve threads
 
-**MUST** ask: "Commit and push, then reply and resolve threads? (y/n, recommended: y)"
+**MUST** use `AskUserQuestion` with choices `["Yes", "No"]` and question: "Commit and push, then reply and resolve threads?"
 
-If **y**: stage changed files, create a descriptive commit, push, then read `resolve-threads.md` for API commands and reply rules. **Every thread MUST receive a reply before being resolved** — **NEVER** resolve silently.
-If **n**: **DO NOT** commit, push, or resolve.
+**DO NOT** ask via plain text — plain text questions do not block execution in auto mode, causing Claude to proceed without user confirmation.
+
+If **Yes**: stage changed files, create a descriptive commit, push, then read `resolve-threads.md` for API commands and reply rules. **Every thread MUST receive a reply before being resolved** — **NEVER** resolve silently.
+If **No**: **DO NOT** commit, push, or resolve.
 
 ## Common mistakes
 
@@ -195,6 +198,7 @@ If **n**: **DO NOT** commit, push, or resolve.
 - **Batching Critical/Major comments** — Critical/Major **MUST** be presented one at a time. **DO NOT** show multiple Critical/Major comments in a single message.
 - **Analyzing without reading the code** — For Critical/Major, you **MUST** read the git diff and function context before writing Analysis. The fact that Diff is not a separate display field does NOT mean you can skip reading the code. **DO NOT** analyze from the comment text alone.
 - **Agreeing with the reviewer by default** — **MUST** form your own independent judgment. **DO NOT** default to agreeing with the reviewer. If the concern doesn't apply, say so explicitly.
-- **Committing or resolving without asking** — **MUST** ask the user in Step 6. **NEVER** commit, push, or resolve threads without explicit confirmation.
+- **Committing or resolving without asking** — **MUST** use `AskUserQuestion` (not plain text) in Step 6. **NEVER** commit, push, or resolve threads without explicit confirmation. Plain text questions do not block in auto mode.
+- **Using plain text for blocking confirmations** — Any confirmation that **MUST** block execution (Step 3 Fix/Skip, Step 6 commit/push) requires `AskUserQuestion`. Plain text questions are only for non-blocking interactions (Step 4 page confirmations).
 - **Fixing without queuing first** — **MUST** go through ALL comments (Steps 3 + 4) before applying fixes in Step 5. **DO NOT** start fixing during the review steps.
 - **Resolving threads without replying** — Every thread **MUST** get a reply explaining why it was resolved. **NEVER** resolve silently.
