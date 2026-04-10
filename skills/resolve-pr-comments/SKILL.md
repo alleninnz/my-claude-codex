@@ -14,8 +14,8 @@ Interactive review of all unresolved PR review comments — both AI reviewer (Co
 
 ## Tool constraints
 
-- **`gh` CLI only** — use `gh api` (via Bash tool) for all GitHub API calls. Never use GitHub MCP tools.
-- **No `AskUserQuestion`** — present your analysis and recommendation, then let the user type a freeform response (`fix`, `skip`, `1,3`, etc.).
+- **`gh` CLI only** — use `gh api` (via Bash tool) for all GitHub API calls. **NEVER** use GitHub MCP tools.
+- **NEVER** use `AskUserQuestion` — present your analysis and recommendation, then let the user type a freeform response (`fix`, `skip`, `1,3`, etc.).
 
 ## Step 1 — Gather and classify comments (silent)
 
@@ -57,9 +57,9 @@ Show the subagent's triage results. Only show sections that have content:
 
 For each comment (or deduplicated group):
 
-1. Perform deep analysis — read `deep-analysis.md` for methodology, severity re-evaluation rules, and the unified presentation template
+1. **MUST** perform deep analysis — read `deep-analysis.md` for methodology, severity re-evaluation rules, and the unified presentation template
 2. Present the comment using the unified template — every comment **MUST** include all fields: Problem, Wants, Diff, Analysis, Recommendation. **DO NOT** skip any field.
-3. Ask: `Fix or skip?`
+3. **MUST** ask: `Fix or skip?` — **DO NOT** proceed to the next comment without the user's explicit decision. **DO NOT** auto-decide on the user's behalf.
 4. Record the user's decision, move to next comment
 
 | User input | Behavior |
@@ -67,11 +67,11 @@ For each comment (or deduplicated group):
 | `fix` | Queue for fix, move to next comment |
 | `skip` | Skip, move to next comment |
 
-**Severity re-evaluation during deep analysis:** If a comment is downgraded below Major, do not present it here — move it to Step 4 (Medium/Low batch). If all Critical/Major comments are downgraded, skip this step entirely.
+**Severity re-evaluation during deep analysis:** If a comment is downgraded below Major, **DO NOT** present it here — move it to Step 4 (Medium/Low batch). If all Critical/Major comments are downgraded, skip this step entirely.
 
 ## Step 4 — Medium/Low batch review
 
-**MUST** present all Medium/Low comments (including any downgraded from Step 3) using the unified template — but without Diff (no deep analysis prerequisite). Problem, Wants, and Analysis fields come directly from the data-gather subagent output.
+**MUST** present all Medium/Low comments (including any downgraded from Step 3) using the unified template — but without Diff (no deep analysis prerequisite). Problem and Wants fields come from the data-gather subagent output. Analysis **MUST** be YOUR independent judgment — **DO NOT** just agree with the reviewer by default. Write it yourself based on the subagent's classification and the comment context.
 
 Every Medium/Low comment **MUST** use the same template structure as Critical/Major. **DO NOT** collapse Medium/Low comments into one-line summaries. Reduced depth means shorter content per field, not fewer fields:
 - Problem: 1 sentence — **MUST** be present
@@ -81,7 +81,7 @@ Every Medium/Low comment **MUST** use the same template structure as Critical/Ma
 - Original comment: **MUST** be present (collapsed)
 - No Diff section
 
-Present all comments as a numbered batch, then show the defaults summary:
+**MUST** present all comments as a numbered batch, then **MUST** show the defaults summary:
 
 ````text
 ── Medium/Low (N comments) ──────────────────
@@ -152,7 +152,7 @@ Show the review summary:
 ```text
 ── Review Summary ──────────────────────────
 Critical/Major: 3 comments (2 fix, 1 skip)
-Medium/Low:     5 comments (1 rescued → fix, 4 skipped)
+Medium/Low:     5 comments (1 reviewed → fix, 4 skipped)
 Outdated:       2 comments (auto-skipped)
 Copilot:        4 comments (1 promoted → fix, 3 auto-skipped)
 Duplicates:     3 comments merged into 2 groups
@@ -162,14 +162,14 @@ Total: 17 comments → 4 fixes queued
 
 If no fixes queued: report "No fixes to apply." then skip straight to replying and resolving threads — no commit/push needed, no confirmation prompt. Read `resolve-threads.md` for API commands and reply rules.
 
-If fixes queued: apply all fixes, run build/lint/test to verify, show summary of changes, then proceed to Step 6.
+If fixes queued: apply all fixes, **MUST** run build/lint/test to verify — **DO NOT** skip verification. Show summary of changes, then proceed to Step 6.
 
 ## Step 6 — Commit, push, and resolve threads
 
-Ask: "Commit and push, then reply and resolve threads? (y/n, recommended: y)"
+**MUST** ask: "Commit and push, then reply and resolve threads? (y/n, recommended: y)"
 
-If **y**: stage changed files, create a descriptive commit, push, then read `resolve-threads.md` for API commands and reply rules. **Every thread MUST receive a reply before being resolved** — never resolve silently.
-If **n**: do NOT commit, push, or resolve.
+If **y**: stage changed files, create a descriptive commit, push, then read `resolve-threads.md` for API commands and reply rules. **Every thread MUST receive a reply before being resolved** — **NEVER** resolve silently.
+If **n**: **DO NOT** commit, push, or resolve.
 
 ## Common mistakes
 
@@ -177,8 +177,8 @@ If **n**: do NOT commit, push, or resolve.
 - **Skipping Problem or Wants fields** — Every comment at every severity level **MUST** include Problem and Wants. These fields are NOT optional. DO NOT skip them, even for Low severity.
 - **Collapsing Medium/Low to one-line summaries** — Medium/Low **MUST** use the same template structure as Critical/Major. Reduced depth means shorter sentences, NOT fewer fields.
 - **Batching Critical/Major comments** — Critical/Major **MUST** be presented one at a time. **DO NOT** show multiple Critical/Major comments in a single message.
-- **Shallow analysis without reading diff/context** — For Critical/Major, you MUST read the git diff and function context before presenting.
-- **Agreeing with the reviewer by default** — Form your own judgment. If the concern doesn't apply, say so.
-- **Committing or resolving without asking** — Always ask the user in Step 6.
-- **Fixing without queuing first** — Go through ALL comments (Steps 3 + 4) before applying fixes in Step 5.
-- **Resolving threads without replying** — Every thread must get a reply explaining why it was resolved.
+- **Shallow analysis without reading diff/context** — For Critical/Major, you **MUST** read the git diff and function context before presenting. **DO NOT** analyze from the comment text alone.
+- **Agreeing with the reviewer by default** — **MUST** form your own independent judgment. **DO NOT** default to agreeing with the reviewer. If the concern doesn't apply, say so explicitly.
+- **Committing or resolving without asking** — **MUST** ask the user in Step 6. **NEVER** commit, push, or resolve threads without explicit confirmation.
+- **Fixing without queuing first** — **MUST** go through ALL comments (Steps 3 + 4) before applying fixes in Step 5. **DO NOT** start fixing during the review steps.
+- **Resolving threads without replying** — Every thread **MUST** get a reply explaining why it was resolved. **NEVER** resolve silently.

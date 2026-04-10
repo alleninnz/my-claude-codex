@@ -1,6 +1,6 @@
 # PR Review — Data Gathering Subagent
 
-Dispatch this as an Agent with `model: sonnet` (mechanical data fetching, no judgment needed beyond Copilot triage). The subagent must use `gh` CLI (via Bash tool) for all GitHub API calls — never GitHub MCP tools.
+Dispatch this as an Agent with `model: sonnet` (mechanical data fetching, no judgment needed beyond Copilot triage). The subagent **MUST** use `gh` CLI (via Bash tool) for all GitHub API calls — **NEVER** use GitHub MCP tools.
 
 ## Prompt template
 
@@ -35,7 +35,7 @@ Review comments (inline, top-level only):
 gh api repos/{owner}/{repo}/pulls/{number}/comments --paginate \
   --jq '[.[] | select(.in_reply_to_id == null) | {id: .id, path: .path, line: .line, body: .body, user: .user.login, user_type: .user.type}]'
 
-Filter to only those whose id is in the unresolved set. Discard resolved.
+**MUST** filter to only those whose id is in the unresolved set. **DO NOT** include resolved comments.
 
 Issue comments (PR-level):
 
@@ -50,7 +50,7 @@ If no actionable comments found, return: "No review comments found."
 
 Review comments where `line` is `null` are outdated. Split into outdated and active groups.
 
-For each outdated comment, you MUST generate a one-line plain-language summary, plus Problem and Wants fields in natural language. DO NOT skip these fields for outdated comments.
+For each outdated comment, generate a one-line plain-language summary.
 
 ## Step 4: Triage Copilot comments
 
@@ -72,7 +72,7 @@ Classify severity:
 - Medium: Possible edge cases, non-critical improvements, readability
 - Low/Nitpick: Naming style, comment suggestions, formatting
 
-Use reviewer labels as starting point, upgrade based on text content. Downgrade floor is Medium.
+Use reviewer labels as starting point, upgrade based on text content. Downgrade floor is Medium — **NEVER** downgrade below Medium.
 
 Deduplicate: group by same file / adjacent lines (±5) / same concern. Group severity = highest.
 
@@ -87,7 +87,7 @@ For each comment processed, record: {commentId, threadId (from Step 1 data), cat
 
 ## Return format
 
-Return ALL of the following sections. Use exact headers:
+**MUST** return ALL of the following sections — **DO NOT** omit any section, even if empty (use N=0). Use exact headers:
 
 ### PR
 owner: {owner}

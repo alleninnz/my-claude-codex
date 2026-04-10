@@ -2,7 +2,7 @@
 
 ## Analysis inputs
 
-Before presenting a Critical/Major comment (or a rescued Medium/Low comment), gather:
+Before presenting a Critical/Major comment (or a Medium/Low comment promoted via `review N`), you **MUST** gather all of the following — **DO NOT** present without reading the actual code first:
 
 1. **git diff** — `git diff $(gh pr view --json baseRefName -q .baseRefName)...HEAD -- {path}` focused on the comment's location
 2. **Function-level context** — the full function/method containing the flagged line (not the entire file)
@@ -16,7 +16,7 @@ If a file was deleted/renamed, check `git log --diff-filter=R --find-renames -- 
 
 After deep analysis, Claude may upgrade or downgrade:
 
-- Downgraded below Major → move to Medium/Low overview (Step 4), retain gathered context for reuse if rescued
+- Downgraded below Major → move to Medium/Low batch (Step 4), retain gathered context for reuse if promoted via `review N`
 - Upgraded → reflect in header (e.g., `[Medium → Critical]`)
 - If all Critical/Major comments downgrade, skip Step 3 and proceed to Step 4
 
@@ -44,18 +44,20 @@ The rule: pretend you're explaining the problem to the colleague sitting next to
 📍 path/to/file.go:42
 
 **Problem:**
-<Natural language explanation of what's wrong with the code.
-1-2 sentences for Critical/Major. Write as if explaining to a colleague.>
+<MUST be natural language explaining what's wrong with the code.
+1-2 sentences for Critical/Major. DO NOT echo reviewer phrasing.>
 
 **Wants:**
-<What the reviewer wants done about it. 1 sentence, natural language.>
+<MUST state what the reviewer wants done. 1 sentence, natural language.
+DO NOT copy the reviewer's suggestion verbatim.>
 
 **Diff:**
 <git diff snippet, only the change related to this comment, ±3 lines context>
 
 **Analysis:**
-<Your independent judgment: agree/disagree, and why.
-2-3 sentences for Critical/Major. State disagreement explicitly.>
+<MUST be YOUR independent judgment: agree/disagree, and why.
+2-3 sentences for Critical/Major. DO NOT just agree with the reviewer —
+state disagreement explicitly when you disagree.>
 
 **Recommendation:** Fix / Skip
 <1-sentence rationale>
@@ -65,12 +67,14 @@ The rule: pretend you're explaining the problem to the colleague sitting next to
 </details>
 ```
 
-For **deduplicated groups**: replace header with `── 1/N ── [Major] ── 2 comments grouped ──`, show `📍 path/to/file.go:42 (coderabbit, copilot)`, merge Problem/Wants noting each reviewer's angle, merge analysis, and wrap originals in `<details><summary>Original comments (2)</summary>`.
+For **deduplicated groups**: replace header with `── 1/N ── [Major] ── 2 comments grouped ──`, show `📍 path/to/file.go:42 (coderabbit, copilot)`, **MUST** merge Problem/Wants noting each reviewer's angle, **MUST** merge analysis, and wrap originals in `<details><summary>Original comments (2)</summary>`. **DO NOT** just pick one reviewer's framing — synthesize both.
 
 Omit `📍` and `**Diff:**` for PR-level issue comments.
 
 ## User interaction
 
-This file covers analysis methodology and presentation only. The actual user interaction (auto-queue defaults, override syntax, batch confirmation) is defined in SKILL.md Steps 3 and 4.
+This file covers analysis methodology and presentation only. The actual user interaction model is defined in SKILL.md Steps 3 and 4.
 
-**Batch model:** Do not add per-comment prompts. Present all deep-analyzed comments first, then show a single defaults summary. The user responds once per batch. This applies to both Step 3 (Critical/Major) and Step 4 rescue (multiple rescued items are deep-analyzed, then presented as a batch with independent fix/skip defaults per item).
+**Critical/Major (Step 3):** Present **one at a time**. After each comment, ask `Fix or skip?`. **DO NOT** batch multiple comments into a single message.
+
+**Medium/Low promoted via `review N` (Step 4):** Same as Critical/Major — present one at a time with immediate `Fix or skip?` per comment.

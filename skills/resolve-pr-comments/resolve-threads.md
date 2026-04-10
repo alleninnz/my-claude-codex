@@ -2,20 +2,20 @@
 
 ## Reply rules
 
-**Every thread MUST receive a reply before resolving.** Never resolve silently.
+**Every thread MUST receive a reply before resolving.** **NEVER** resolve silently.
 
 | Category | Reply content |
 |----------|---------------|
-| Fixed (Step 3 or rescued Step 4) | "Fixed in \<commit\>. \<brief explanation\>" |
-| Explicitly skipped (Step 3 or rescued Step 4) | Concise technical reason (e.g., "Follows existing codebase convention") |
-| Auto-skipped Medium/Low | One-line reason (e.g., "Style preference — not addressing in this PR") |
+| Fixed (Step 3 or reviewed Step 4) | "Fixed in \<commit\>. \<brief explanation\>" |
+| Explicitly skipped (Step 3 or reviewed Step 4) | Concise technical reason (e.g., "Follows existing codebase convention") |
+| Skipped Medium/Low | One-line reason (e.g., "Style preference — not addressing in this PR") |
 | Auto-skipped Copilot noise | One-line reason (e.g., "Not applicable — Go 1.22+ fixed loop variable semantics") |
 | Outdated | "Already addressed in \<commit\>" or "No longer applicable after \<change\>" |
 | Deduplicated groups | Same reply on each comment, referencing the shared fix |
 
 ## Output noise suppression
 
-All `gh api` calls redirect to `/dev/null`. Print only:
+All `gh api` calls **MUST** redirect to `/dev/null`. Print only:
 
 ```
 All replies posted. Now resolving threads.
@@ -65,4 +65,4 @@ gh api graphql -f query='mutation { resolveReviewThread(input: {threadId: "<thre
 
 ## Deduplicated groups
 
-Reply to each comment individually (same reply body), resolve each thread independently.
+**MUST** reply to each comment individually (same reply body), resolve each thread independently. **DO NOT** skip any comment in a deduplicated group.
