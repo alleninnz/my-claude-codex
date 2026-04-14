@@ -11,4 +11,9 @@ paths:
 
 **ONE test at a time.** No batching tests or table rows. **NO EXCEPTION**.
 
-**Checkpoint:** After every **3** green cycles, or when shifting test category (happy-path -> errors, switching function, unit -> integration), you **MUST** summarize what was added and **wait for user response** before continuing. **NEVER** skip or continue past a checkpoint without user input.
+**Checkpoint:** After completing a logical group of cycles, you **MUST** summarize what was added and **wait for user response** before continuing. A group boundary is:
+- A task group from the plan (e.g., `## 3. Handler — Per-Method Validation`)
+- A category shift: happy-path → error cases, switching target function, unit → integration tests
+- Whichever comes first
+
+Within a group, keep going — do **NOT** pause at a fixed cycle count. **NEVER** skip or continue past a checkpoint without user input.
