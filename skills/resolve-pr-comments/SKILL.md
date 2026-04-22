@@ -25,9 +25,10 @@ Dispatch a subagent using the prompt template in `data-gather.md`. The subagent 
 
 - Identifies the PR and repo
 - Fetches unresolved review threads
-- Fetches all comments (bot and human), filters to unresolved only
+- Fetches all inline review comments (bot and human), filters to unresolved only
+- Fetches all PR-level issue comments (bot and human) and classifies: bot noise → skip, conversational → skip, actionable → include. **MUST NOT** drop human PR-level comments by user type — substantive reviews frequently land here. For each actionable issue comment, the subagent also collects staleness signals (reactions, author followups, commits-after) so the main skill can help the user distinguish already-handled feedback from live requests — PR-level comments have no resolved state, so without signals they re-surface on every run
 - Partitions outdated comments
-- Auto-triages Copilot comments (high false-positive rate)
+- Auto-triages Copilot comments (high false-positive rate) — applies to Copilot inline comments only, never to human comments
 - Classifies severity and deduplicates
 
 The subagent returns structured data with: `pr`, `outdated[]`, `copilot_triage[]`, `critical_major[]`, `medium_low[]`, and `thread_map[]`.
@@ -61,8 +62,9 @@ For each comment (or deduplicated group):
 
 1. **MUST** perform deep analysis — read `deep-analysis.md` for methodology, severity re-evaluation rules, and the unified presentation template
 2. Present the comment using the unified template — every comment **MUST** include all fields: Problem, Wants, Analysis, Recommendation. **DO NOT** skip any field.
-3. **MUST** ask using `AskUserQuestion` with choices `["Fix", "Skip"]` — **DO NOT** proceed to the next comment without the user's explicit decision. **DO NOT** auto-decide on the user's behalf.
-4. Record the user's decision, move to next comment
+3. **For PR-level issue comments**: the subagent attaches `staleness_signals` (acknowledgements, author followups, commits-after). **MUST** display these verbatim in a dedicated "Signals" section before the AskUserQuestion — they let the user decide whether the concern was already handled. **NEVER** auto-skip based on signals; the user makes the call.
+4. **MUST** ask using `AskUserQuestion` with choices `["Fix", "Skip"]` — **DO NOT** proceed to the next comment without the user's explicit decision. **DO NOT** auto-decide on the user's behalf.
+5. Record the user's decision, move to next comment
 
 | User input | Behavior |
 |------------|----------|
@@ -79,6 +81,7 @@ Every Medium/Low comment **MUST** use the same template structure as Critical/Ma
 - Problem: **MUST** be present — natural language explaining what's wrong with the code. Write as if explaining to a colleague sitting next to you.
 - Wants: **MUST** be present — natural language explaining what the reviewer wants done. Write as if explaining to a colleague sitting next to you.
 - Analysis: **MUST** be present — natural language with YOUR independent judgment. Write as if explaining to a colleague sitting next to you.
+- Signals (PR-level only): **MUST** be present for PR-level issue comments — display the subagent's `staleness_signals` (acknowledgements, author followups, PR activity). Omit for inline comments. Without this, already-handled PR-level feedback looks identical to fresh requests and gets auto-queued or skipped blindly — PR-level comments have no resolved state.
 - Recommendation: **MUST** be present
 - Original comment: **MUST** be present (collapsed)
 
@@ -202,3 +205,4 @@ If **No**: **DO NOT** commit, push, or resolve.
 - **Using plain text for blocking confirmations** — Any confirmation that **MUST** block execution (Step 3 Fix/Skip, Step 6 commit/push) requires `AskUserQuestion`. Plain text questions are only for non-blocking interactions (Step 4 page confirmations).
 - **Fixing without queuing first** — **MUST** go through ALL comments (Steps 3 + 4) before applying fixes in Step 5. **DO NOT** start fixing during the review steps.
 - **Resolving threads without replying** — Every thread **MUST** get a reply explaining why it was resolved. **NEVER** resolve silently.
+- **Dropping human PR-level comments at fetch time** — The data-gather step **MUST NOT** filter issue comments by `user.type`. Human reviewers often post substantive design feedback as PR-level issue comments rather than inline; a blanket bot-only filter silently hides those from the review. Classify PR-level comments into bot-noise / conversational / actionable — include the actionable ones.

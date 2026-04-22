@@ -9,6 +9,15 @@ You are gathering and classifying AI reviewer comments for PR #{number} on {owne
 
 Working directory: {cwd}
 
+## Step 0: Fetch PR metadata
+
+Fetch the PR author login and current head — needed to attribute staleness signals correctly:
+
+gh api repos/{owner}/{repo}/pulls/{number} \
+  --jq '{author: .user.login, head_sha: .head.sha, updated_at: .updated_at}'
+
+Store as `pr_meta`. Referenced below as `pr_meta.author` and `pr_meta.updated_at`.
+
 ## Step 1: Fetch unresolved thread IDs
 
 gh api graphql -F owner='{owner}' -F repo='{repo}' -F number={number} -f query='
@@ -37,30 +46,79 @@ gh api repos/{owner}/{repo}/pulls/{number}/comments --paginate \
 
 **MUST** filter to only those whose id is in the unresolved set. **DO NOT** include resolved comments.
 
-Issue comments (PR-level):
+Issue comments (PR-level) — **MUST** fetch both human and bot comments. **DO NOT** filter by user type at this step; filtering happens in classification below.
 
 gh api repos/{owner}/{repo}/issues/{number}/comments --paginate \
-  --jq '[.[] | select(.user.type == "Bot") | {id: .id, body: .body, user: .user.login, user_type: .user.type, type: "issue_comment"}]'
+  --jq '[.[] | {id: .id, body: .body, user: .user.login, user_type: .user.type, created_at: .created_at, type: "issue_comment"}]'
 
-Skip issue comments that are purely summaries (CodeRabbit walkthrough tables, Datadog CI reports, etc.). Only bot issue comments are fetched (human PR-level comments are conversational, not actionable review items).
+Classify each issue comment into one of three buckets:
 
-If no actionable comments found, return: "No review comments found."
+1. **Skip (bot noise)** — auto-generated summaries and CI reports with no actionable content:
+   - CodeRabbit walkthrough tables and paused-review banners
+   - Datadog / CI pipeline reports
+   - Linear linkback comments
+   - Bot status notifications
+
+2. **Skip (conversational)** — chatter without substantive review content, from humans or bots:
+   - Bot invocations (`@codex review`, `@coderabbitai help`, `/review`)
+   - Simple acknowledgements (`LGTM`, `thanks`, `nice`)
+   - Teammate discussion that doesn't ask for code changes
+   - Merge/status notes (`ready to merge`, `blocked by X`)
+
+3. **Include (actionable)** — substantive review feedback that maps to a Fix/Skip decision:
+   - Design concerns or API contract questions
+   - Explicit asks to change, add, or remove code
+   - Flagged bugs, risks, or missing cases
+   - Human reviewers giving feedback at PR level instead of inline (common for cross-cutting concerns)
+   - Bot comments with concrete inline feedback outside the CodeRabbit walkthrough (e.g., separate `coderabbitai` actionable blocks)
+
+**MUST exclude from the actionable bucket (use as staleness signals only):**
+- Comments where `user == pr_meta.author` — these are the author's own status updates, replies, or prior skill-generated Step 6 resolutions. They are not review items. Surface them as `author_followups` signals against the reviewer comments they respond to, never as fresh Fix/Skip candidates.
+- Comments authored by the session's GitHub login (same reasoning) — these are typically the skill's own prior Step 6 replies.
+
+**When in doubt, include it.** Over-including a conversational comment is recoverable (easy Skip in Step 5); dropping a substantive human review at fetch time is silent and invisible to the user. The skill has already been bitten by this — **NEVER** reintroduce a blanket `user.type == "Bot"` filter here.
+
+### Staleness signals (PR-level actionable comments only)
+
+PR-level issue comments **have no resolved/unresolved state** — they persist even after the author addresses them inline, in a reply, or via a push. Without extra signals, repeat runs re-queue already-handled feedback.
+
+For **each issue comment classified as actionable** (bucket 3 above), fetch these signals and attach them to the comment record. **DO NOT auto-skip based on signals** — the main skill presents them to the user, who makes the final Fix/Skip call.
+
+1. **Reactions on the comment** (acknowledgement hint):
+   ```
+   gh api repos/{owner}/{repo}/issues/comments/{comment_id}/reactions \
+     --jq '[.[] | {user: .user.login, content: .content}]'
+   ```
+   Flag if the original reviewer or `pr_meta.author` left `+1` / `rocket` / `hooray`.
+
+2. **Subsequent author replies** (discussion hint): from the issue-comments list already fetched, include any issue comment where `created_at > target.created_at` AND (`user == pr_meta.author` OR body mentions the reviewer by `@handle` OR body quotes the original). Use `pr_meta.author` — **DO NOT** guess who the author is.
+
+3. **PR activity after the comment** (coarse work-done hint): compare `pr_meta.updated_at > target.created_at`. **MUST NOT** use commit timestamps (`committer.date` / `author.date`) — they are preserved through rebase/cherry-pick and will under-report post-comment work. The PR-level `updated_at` is coarse (bumps on every comment too) but robust.
+
+Attach to the comment record as `staleness_signals`:
+- `acknowledged_by: [list of users who reacted positively]` (empty if none)
+- `author_followups: [{id, body_preview, created_at}]` (empty if none)
+- `pr_updated_since_comment: true|false` (coarse signal — treat as "activity happened" not "work done")
+
+If no actionable comments found (inline + issue-level combined), return: "No review comments found."
 
 ## Step 3: Partition outdated
 
-Review comments where `line` is `null` are outdated. Split into outdated and active groups.
+**Inline review comments only.** Review comments where `line` is `null` are outdated. Split into outdated and active groups.
+
+**MUST NOT** apply this rule to PR-level issue comments — they structurally have no `line` field and would all be misclassified as outdated.
 
 For each outdated comment, generate a one-line plain-language summary.
 
 ## Step 4: Triage Copilot comments
 
-From the **bot** comments only, separate into Copilot (user contains "copilot" case-insensitive) and non-Copilot.
+From the **bot inline review comments** only, separate into Copilot (user contains "copilot" case-insensitive) and non-Copilot. This step targets Copilot specifically — **DO NOT** apply it to human comments or to issue-level comments.
 
 For each Copilot comment, read the referenced code and assess:
 - Noise: style nitpicks, incorrect claims, suggestions already handled, duplicates → skip
 - Legitimate: real bugs, missing error handling, actual logic issues → promote
 
-Human comments (`user_type == "User"`) are NEVER auto-triaged or auto-skipped — they always go to classification in Step 5.
+**MUST NOT** auto-triage or auto-skip human comments (`user_type == "User"`) at any step. Every actionable human comment from Step 2 and Step 3 goes to classification in Step 5.
 
 ## Step 5: Classify and deduplicate
 
@@ -101,14 +159,23 @@ For each: [bot] path — one-line summary (include comment ID)
 For each: ✗/✓ path:line — summary — reason (include comment ID)
 
 ### Critical/Major (N)
-For each: [severity] path:line (reviewer) — summary (include comment ID, all IDs for dedup groups, mark human reviewers)
+For each: [severity] {location} (reviewer) — summary (include comment ID, all IDs for dedup groups, mark human reviewers)
 Problem: <natural language>
 Wants: <natural language>
+Staleness signals: <only for PR-level issue comments; omit for inline>
 
 ### Medium/Low (N)
-For each: [severity] path:line (reviewer) — summary (include comment ID, all IDs for dedup groups, mark human reviewers)
+For each: [severity] {location} (reviewer) — summary (include comment ID, all IDs for dedup groups, mark human reviewers)
 Problem: <natural language>
 Wants: <natural language>
+Staleness signals: <only for PR-level issue comments; omit for inline>
+
+`{location}` is `path:line` for inline review comments and `PR-level (issue comment)` for PR-level issue comments. **MUST** also mark human reviewers explicitly (e.g., `(paul-freeman, human)`) — humans and bots need visibly different labels so the main skill can apply stricter no-auto-skip rules to human feedback.
+
+`Staleness signals` format (PR-level only):
+- `Acknowledged: @user1 (rocket), @user2 (+1)` or `Acknowledged: none`
+- `Author followups: 2 comment(s) from @{author} after this one` or `Author followups: none`
+- `PR activity since comment: yes (coarse — bumps on any comment/push)` or `PR activity since comment: no`
 
 ### Thread Map
 For each: commentId → threadId
