@@ -2,6 +2,9 @@
   "name": "my-claude-code",
   "private": true,
   "description": "Claude Code plugin for Go development — agents, skills, and commands.",
+  "scripts": {
+    "test:opsx-prompt": "node scripts/test-opsx-prompt.js --self-test"
+  },
   "keywords": [
     "claude-code-plugin",
     "golang",

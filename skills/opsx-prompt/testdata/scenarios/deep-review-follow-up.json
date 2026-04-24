@@ -1,0 +1,26 @@
+{
+  "name": "deep-review-follow-up",
+  "description": "Deep review should stay outside the main prompt as follow-up notes.",
+  "input": {
+    "kind": "issue",
+    "issue_id": "APP-66666"
+  },
+  "expect": {
+    "has_prompt": true,
+    "header_pattern": "^reporting-service \\| APP-66666 \\| Add settlement export filters$",
+    "required_prompt_sections": [
+      "Why",
+      "This change"
+    ],
+    "required_user_notes": [
+      "Possible missing considerations",
+      "Possible contract risks",
+      "Possible already-completed work"
+    ],
+    "forbidden_prompt_patterns": [
+      "Possible missing considerations",
+      "Possible contract risks",
+      "Possible already-completed work"
+    ]
+  }
+}

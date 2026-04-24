@@ -1,0 +1,31 @@
+{
+  "name": "clean-issue",
+  "description": "A straightforward Linear issue should produce a prompt with no extra user notes.",
+  "input": {
+    "kind": "issue",
+    "issue_id": "APP-12345"
+  },
+  "expect": {
+    "has_prompt": true,
+    "header_pattern": "^billing-service \\| APP-12345 \\| Backfill invoice totals$",
+    "required_prompt_sections": [
+      "Why",
+      "This change",
+      "Already in place",
+      "Non-scope"
+    ],
+    "forbidden_prompt_patterns": [
+      "`[^`]+`",
+      "\\b[\\w./-]+\\.(?:go|proto|ts|js|py|sql)(?::\\d+)?\\b",
+      "\\b[A-Za-z_][A-Za-z0-9_]*\\([^\\n]*\\)"
+    ],
+    "forbidden_user_notes": [
+      "Sanity check skipped",
+      "Ticket-vs-code mismatch",
+      "Symbol-sensitive requirements",
+      "Possible missing considerations",
+      "Possible contract risks",
+      "Possible already-completed work"
+    ]
+  }
+}

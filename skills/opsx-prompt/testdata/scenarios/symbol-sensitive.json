@@ -1,0 +1,23 @@
+{
+  "name": "symbol-sensitive",
+  "description": "A load-bearing symbol-level ask should survive as a user note when it cannot be safely preserved in the prompt.",
+  "input": {
+    "kind": "issue",
+    "issue_id": "APP-44444"
+  },
+  "expect": {
+    "has_prompt": true,
+    "header_pattern": "^pricing-service \\| APP-44444 \\| Adjust completed price field name$",
+    "required_prompt_sections": [
+      "Why",
+      "This change"
+    ],
+    "required_user_notes": [
+      "Symbol-sensitive requirements"
+    ],
+    "required_output_patterns": [
+      "CompletedUnitPrice",
+      "FinalCompletedUnitPrice"
+    ]
+  }
+}

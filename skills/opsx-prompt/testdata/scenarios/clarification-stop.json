@@ -1,0 +1,20 @@
+{
+  "name": "clarification-stop",
+  "description": "A materially false premise should stop prompt generation.",
+  "input": {
+    "kind": "issue",
+    "issue_id": "APP-77777"
+  },
+  "expect": {
+    "has_prompt": false,
+    "required_user_notes": [
+      "Ticket-vs-code mismatch"
+    ],
+    "required_output_patterns": [
+      "Ticket needs clarification before generating a prompt"
+    ],
+    "forbidden_output_patterns": [
+      "```text"
+    ]
+  }
+}
