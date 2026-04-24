@@ -1,0 +1,28 @@
+{
+  "name": "wrong-symbol",
+  "description": "A symbol-heavy ticket that points at the wrong field should still produce a prompt plus a mismatch note.",
+  "input": {
+    "kind": "issue",
+    "issue_id": "APP-22222"
+  },
+  "expect": {
+    "has_prompt": true,
+    "header_pattern": "^orders-service \\| APP-22222 \\| Rename completed unit price field$",
+    "required_prompt_sections": [
+      "Why",
+      "This change",
+      "Open questions"
+    ],
+    "required_user_notes": [
+      "Ticket-vs-code mismatch"
+    ],
+    "forbidden_prompt_patterns": [
+      "`[^`]+`",
+      "\\b[\\w./-]+\\.(?:go|proto|ts|js|py|sql)(?::\\d+)?\\b"
+    ],
+    "required_output_patterns": [
+      "UnitPrice",
+      "CompletedUnitPrice"
+    ]
+  }
+}

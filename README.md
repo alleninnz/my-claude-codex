@@ -26,7 +26,7 @@ Claude Code plugin for Go development — agents, skills, and commands.
 | `mysql-aurora-playbook` | MySQL 8.0 & Aurora MySQL 3 patterns — indexes, types, queries, DDL, monitoring |
 | `tdd-checkpoint` | Enforce one-test-at-a-time TDD discipline with periodic review checkpoints |
 | `skill-guiding` | Browse and discover installed skills from user directory and marketplace plugins |
-| `opsx-prompt` | Generate intent-focused `opsx:new` prompts from Linear issues with code exploration discovery |
+| `opsx-prompt` | Generate ticket-first `opsx:new` prompts from Linear issues, with optional deeper review |
 
 ## Rules
 

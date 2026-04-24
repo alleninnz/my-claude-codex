@@ -1,0 +1,25 @@
+{
+  "name": "ambiguous-open-questions",
+  "description": "Non-blocking ambiguity should be preserved in Open questions instead of being guessed away.",
+  "input": {
+    "kind": "issue",
+    "issue_id": "APP-55555"
+  },
+  "expect": {
+    "has_prompt": true,
+    "header_pattern": "^auth-service \\| APP-55555 \\| Improve login failure handling$",
+    "required_prompt_sections": [
+      "Why",
+      "This change",
+      "Open questions"
+    ],
+    "forbidden_user_notes": [
+      "Ticket-vs-code mismatch",
+      "Symbol-sensitive requirements"
+    ],
+    "required_output_patterns": [
+      "Open questions:",
+      "SSO"
+    ]
+  }
+}

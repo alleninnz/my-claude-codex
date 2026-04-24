@@ -1,0 +1,20 @@
+{
+  "name": "freeform-unknown-service",
+  "description": "A freeform request with no service context should produce a deterministic unknown-service header.",
+  "input": {
+    "kind": "freeform"
+  },
+  "expect": {
+    "has_prompt": true,
+    "header_pattern": "^unknown-service \\| no-issue \\| Add CSV export for failed records$",
+    "required_prompt_sections": [
+      "Why",
+      "This change"
+    ],
+    "forbidden_user_notes": [
+      "Sanity check skipped",
+      "Ticket-vs-code mismatch",
+      "Symbol-sensitive requirements"
+    ]
+  }
+}

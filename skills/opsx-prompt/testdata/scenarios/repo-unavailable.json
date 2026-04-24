@@ -1,0 +1,25 @@
+{
+  "name": "repo-unavailable",
+  "description": "When repo context is required but unavailable, the output must say so explicitly.",
+  "input": {
+    "kind": "issue",
+    "issue_id": "APP-33333"
+  },
+  "expect": {
+    "has_prompt": true,
+    "header_pattern": "^catalog-service \\| APP-33333 \\| Rename item status response field$",
+    "required_prompt_sections": [
+      "Why",
+      "This change"
+    ],
+    "required_user_notes": [
+      "Sanity check skipped"
+    ],
+    "forbidden_user_notes": [
+      "Ticket-vs-code mismatch"
+    ],
+    "required_output_patterns": [
+      "repo unavailable"
+    ]
+  }
+}
