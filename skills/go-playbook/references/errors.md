@@ -50,6 +50,21 @@ if ve, ok := errors.AsType[*ValidationError](err); ok {
 }
 ```
 
+## Error Ownership
+
+Use one owner per error. Classify and log each error in exactly one place. Shared functions should own classification only when every caller needs the same handling; otherwise return enough context and let callers classify. Do not log the same error in multiple layers.
+
+Before changing an error path, trace the full chain:
+
+1. Source error: where the error is created or returned
+2. Wrap point: where context is added with `%w`
+3. Classification owner: retryable, not found, validation, internal, etc.
+4. Log owner: the single layer allowed to log this error
+5. Transport mapping: HTTP, gRPC, GraphQL status and response shape
+6. Test expectation: existing or new coverage for the intended behavior
+
+Do not make blind single-layer patches. When modifying returned errors, diff the before/after paths. Intentional behavior changes need their own tests; simplification or refactor work must preserve `errors.Is`/`errors.As`, messages relied on by callers, logging ownership, and transport mapping. Run relevant error-path tests after any change.
+
 **Anti-patterns:**
 
 - Don't log AND return the same error — handle it once

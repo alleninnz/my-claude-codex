@@ -1,21 +1,23 @@
 ---
 name: go-playbook
-description: Use when a Go task needs version-specific APIs, idiomatic error/concurrency/testing patterns, package/interface design tradeoffs, performance tuning, gRPC/protobuf, database/sql, Ent, or tooling decisions.
+description: Use when a Go task needs guidance on error ownership, logging, stdlib-vs-custom helper choices, version-specific APIs, concurrency, testing, package/interface design, performance, gRPC/protobuf, database/sql, Ent, or tooling decisions.
 ---
 
 # Go Playbook (1.21-1.26)
 
-Idiomatic Go patterns and production-ready recipes. Load only the reference section needed for the current task.
+Idiomatic Go patterns and production-ready recipes. Load only the reference file(s) needed for the current task.
 
 ## When to Use
 
-- Writing or reviewing Go code where the right idiom is not obvious
+- Writing, reviewing, or refactoring Go code where the right idiom or API choice is not obvious
+- Touching error paths, wrapping, classification, logging, or transport mapping
+- Creating helpers/utilities or choosing between repo code, stdlib, dependencies, and custom code
 - Designing packages, structs, or dependency injection
 - Optimizing performance (PGO, GC tuning, allocations)
 - Writing tests (table-driven, fuzz, integration, benchmarks)
 - Working with gRPC/Protobuf, databases, or structured logging
 
-**Not for:** Non-Go languages, generic algorithms unrelated to Go idioms, trivial syntax questions, or repos where nearby code already gives a clear pattern.
+**Not for:** Non-Go languages, generic algorithms unrelated to Go idioms, trivial syntax questions, or mechanical edits with no Go design, error, testing, API, performance, or tooling judgment.
 
 ## Version Gate
 
@@ -27,6 +29,8 @@ Before using version-specific APIs, check the repo's `go.mod` `go` directive. If
 |-------|---------|---------|
 | Error matching | `errors.AsType[*T](err)` (1.26) | `references/errors.md` |
 | Error wrapping | `fmt.Errorf("context: %w", err)` | `references/errors.md` |
+| Error ownership | Trace source -> wrap -> classify -> log -> transport map | `references/errors.md` |
+| New helper gate | Existing repo -> stdlib -> compiler-backed stdlib -> go.mod deps -> custom | `references/design.md` |
 | Goroutine launch | `wg.Go(func() { ... })` (1.25) | `references/concurrency.md` |
 | Bounded parallelism | `conc/pool` with `WithMaxGoroutines` | `references/concurrency.md` |
 | Iterators | `iter.Seq[V]`, `iter.Seq2[K,V]` (1.23) | `references/version-notes.md` |
@@ -40,12 +44,12 @@ Before using version-specific APIs, check the repo's `go.mod` `go` directive. If
 
 ## Reference Routing
 
-Read only the file that matches the current work:
+Read only the file(s) that match the current work:
 
-- `references/errors.md` — wrapping, sentinels, custom types, `errors.AsType[T]`, duplicate logging
+- `references/errors.md` — wrapping, sentinels, custom types, `errors.AsType[T]`, error ownership, duplicate logging
 - `references/concurrency.md` — `WaitGroup.Go`, conc, `errgroup`, context, goroutine leaks, graceful shutdown
 - `references/version-notes.md` — Go 1.22-1.26 APIs: iterators, ServeMux, tool directives, `omitzero`, flight recorder, release highlights
-- `references/design.md` — interfaces, packages, dependency injection, structs, method receivers, zero values
+- `references/design.md` — stdlib-first helper decisions, interfaces, packages, dependency injection, structs, method receivers, zero values
 - `references/testing.md` — table-driven tests, `testing/synctest`, mockery v3, fuzzing, testcontainers, artifacts
 - `references/logging.md` — slog setup, child loggers, groups, `NewMultiHandler`, redaction
 - `references/performance.md` — PGO, GOMAXPROCS, Green Tea GC, memory limits, `sync.Pool`, allocation analysis

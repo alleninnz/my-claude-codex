@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "my-claude-codex",
-      "description": "Claude Code plugin for Go development — agents, skills, rules and commands.",
+      "description": "Claude Code plugin for Go development — skills and workflow helpers.",
       "version": "0.0.1",
       "source": "./",
       "category": "development",

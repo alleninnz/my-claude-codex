@@ -1,6 +1,6 @@
 # my-claude-codex
 
-Claude Code and Codex plugin for Go development — shared skills, workflow helpers, and Claude Code-specific rules.
+Claude Code and Codex plugin for Go development — shared skills and workflow helpers.
 
 ## Install
 
@@ -13,9 +13,11 @@ Claude Code and Codex plugin for Go development — shared skills, workflow help
 
 ### Codex
 
-This repo includes a Codex manifest at `.codex-plugin/plugin.json`. Install it as a local Codex plugin from this checkout using your Codex plugin installation flow.
+```bash
+codex plugin marketplace add alleninnz/my-claude-codex
+```
 
-The shared `skills/` directory is available to Codex. Claude Code-specific `rules/` are documented in this repo but are not automatically interpreted by Codex.
+Then run `/plugins` in Codex, open the `my-claude-codex` marketplace, select `my-claude-codex`, install it, and restart Codex.
 
 ## Skills
 
@@ -29,20 +31,7 @@ The shared `skills/` directory is available to Codex. Claude Code-specific `rule
 | `mysql-aurora-playbook` | MySQL 8.0 & Aurora MySQL 3 patterns — indexes, types, queries, DDL, monitoring |
 | `skill-guiding` | Browse and discover installed skills from user directory and marketplace plugins |
 | `opsx-prompt` | Generate ticket-first `opsx:new` prompts from Linear issues, with optional deeper review |
-
-## Rules
-
-Claude Code only.
-
-> **Note:** Claude Code plugins cannot distribute rules yet. Run `npm run install:rules` to copy these files into `~/.claude/rules/` for them to take effect.
-
-| Rule | Triggers on | What it does |
-|------|-------------|--------------|
-| `go-playbook.md` | `**/*.go`, `**/go.mod`, `**/go.sum` | Auto-invokes the go-playbook skill when touching Go files |
-| `go-quality.md` | `**/*.go` | Enforces stdlib-first, no-reinvention policy for Go code |
-| `go-error-ownership.md` | `**/*.go` | Enforces single-owner error handling — no duplicate logging, trace before fixing |
-| `tdd-discipline.md` | `**/*.go`, `**/*.py`, `**/*.ts`, `**/*.tsx`, `**/*.js`, `**/*.jsx`, `**/*.rs` | Enforces RED→GREEN→REFACTOR discipline during explicit TDD work |
-| `mysql-aurora-playbook.md` | `**/*.sql`, `**/migrations/**`, `**/migrate/**`, `**/db/**`, `**/database/**`, `**/ent/schema/**` | Auto-invokes the mysql-aurora-playbook skill for MySQL/Aurora database work |
+| `implementation-discipline` | Supervise implementation against specs, prefer TDD when it fits, and checkpoint review-worthy risk boundaries |
 
 ## License
 

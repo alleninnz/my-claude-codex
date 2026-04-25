@@ -1,5 +1,20 @@
 # Design
 
+## Code Quality Gate
+
+Before writing a new function or helper, check in this order:
+
+1. Existing repo code: reuse or extend nearby code when it keeps the diff small and lowers current risk. Do not turn a narrow change into a broad refactor for minor duplication.
+2. Standard library: prefer packages such as `slices`, `maps`, `strings`, `sort`, `bytes`, `cmp`, `sync`, `math/bits`, `crypto/*`, and `encoding/*`.
+3. Compiler-backed stdlib functions: `bits.Len`, `bits.OnesCount`, and `sync/atomic` operations often map to optimized machine instructions.
+4. Existing approved dependencies: use libraries already present in `go.mod` or local shared packages before adding custom utilities.
+
+If one of these options directly covers the need, use it instead of writing new custom code.
+
+If existing repo code is close but reuse would require risky cross-package churn, pause and explain the trade-off before widening scope.
+
+Before adding a parallel function such as `fooWithX` beside `foo`, first consider whether `foo` should handle both cases through a parameter, signature change, or local shared logic. Do the local refactor when it lowers risk; ask before broad caller churn or package-boundary changes.
+
 ## Interface Design
 
 **Small, consumer-defined interfaces:**

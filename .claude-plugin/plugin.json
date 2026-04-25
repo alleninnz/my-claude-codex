@@ -1,6 +1,6 @@
 {
   "name": "my-claude-codex",
-  "description": "Claude Code plugin for Go development — agents, skills, rules and commands.",
+  "description": "Claude Code plugin for Go development — skills and workflow helpers.",
   "version": "0.0.1",
   "author": {
     "name": "Ethan"
@@ -8,5 +8,5 @@
   "repository": "https://github.com/alleninnz/my-claude-codex",
   "homepage": "https://github.com/alleninnz/my-claude-codex",
   "license": "MIT",
-  "keywords": ["go", "agents", "skills", "rules", "commands"]
+  "keywords": ["go", "skills", "workflow", "developer-tools"]
 }

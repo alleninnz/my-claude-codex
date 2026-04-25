@@ -1,7 +1,7 @@
 {
   "name": "my-claude-codex",
   "version": "0.0.1",
-  "description": "Go development toolkit for Codex: skills for Go, MySQL/Aurora, PR work, opsx prompts, and technical writing.",
+  "description": "Go development toolkit for Codex: Go, MySQL/Aurora, implementation discipline, PR work, opsx prompts, and technical writing.",
   "author": {
     "name": "Ethan"
   },
@@ -13,7 +13,7 @@
   "interface": {
     "displayName": "my-claude-codex",
     "shortDescription": "Go and workflow skills for Codex",
-    "longDescription": "Use this plugin in Codex for Go development guidance, MySQL/Aurora patterns, PR workflows, opsx prompt generation, and technical writing.",
+    "longDescription": "Use this plugin in Codex for Go development guidance, MySQL/Aurora patterns, implementation discipline, PR workflows, opsx prompt generation, and technical writing.",
     "developerName": "Ethan",
     "category": "Coding",
     "capabilities": ["Interactive", "Read", "Write"],
