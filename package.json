@@ -1,13 +1,14 @@
 {
-  "name": "my-claude-code",
+  "name": "my-claude-codex",
   "private": true,
-  "description": "Claude Code plugin for Go development — agents, skills, and commands.",
+  "description": "Claude Code and Codex plugin for Go development — skills, rules, and workflow helpers.",
   "scripts": {
     "install:rules": "node scripts/install-rules.js",
     "test:opsx-prompt": "node scripts/test-opsx-prompt.js --self-test"
   },
   "keywords": [
     "claude-code-plugin",
+    "codex-plugin",
     "golang",
     "go",
     "agents",

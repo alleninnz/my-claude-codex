@@ -1,4 +1,4 @@
-# my-claude-code
+# my-claude-codex
 
 Claude Code and Codex plugin for Go development — shared skills, workflow helpers, and Claude Code-specific rules.
 
@@ -7,8 +7,8 @@ Claude Code and Codex plugin for Go development — shared skills, workflow help
 ### Claude Code
 
 ```bash
-/plugin marketplace add alleninnz/my-claude-code
-/plugin install my-claude-code
+/plugin marketplace add alleninnz/my-claude-codex
+/plugin install my-claude-codex
 ```
 
 ### Codex

@@ -1,17 +1,17 @@
 {
-  "name": "my-claude-code",
+  "name": "my-claude-codex",
   "version": "0.0.1",
   "description": "Go development toolkit for Codex: skills for Go, MySQL/Aurora, PR work, opsx prompts, and technical writing.",
   "author": {
     "name": "Ethan"
   },
-  "homepage": "https://github.com/alleninnz/my-claude-code",
-  "repository": "https://github.com/alleninnz/my-claude-code",
+  "homepage": "https://github.com/alleninnz/my-claude-codex",
+  "repository": "https://github.com/alleninnz/my-claude-codex",
   "license": "MIT",
   "keywords": ["go", "skills", "codex", "developer-tools"],
   "skills": "./skills/",
   "interface": {
-    "displayName": "my-claude-code",
+    "displayName": "my-claude-codex",
     "shortDescription": "Go and workflow skills for Codex",
     "longDescription": "Use this plugin in Codex for Go development guidance, MySQL/Aurora patterns, PR workflows, opsx prompt generation, and technical writing.",
     "developerName": "Ethan",

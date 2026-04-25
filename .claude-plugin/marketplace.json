@@ -1,18 +1,18 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "my-claude-code",
+  "name": "my-claude-codex",
   "description": "Go development toolkit for Claude Code",
   "owner": {
     "name": "Ethan"
   },
   "plugins": [
     {
-      "name": "my-claude-code",
+      "name": "my-claude-codex",
       "description": "Claude Code plugin for Go development — agents, skills, rules and commands.",
       "version": "0.0.1",
       "source": "./",
       "category": "development",
-      "homepage": "https://github.com/alleninnz/my-claude-code"
+      "homepage": "https://github.com/alleninnz/my-claude-codex"
     }
   ]
 }
