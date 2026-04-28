@@ -63,6 +63,7 @@ After reading this raw data, produce:
 
 - `outdated[]`
 - `copilot_triage[]`
+- `nitpick_triage[]`
 - `critical_major[]`
 - `medium_low[]`
 - `reply_only[]`
@@ -70,6 +71,8 @@ After reading this raw data, produce:
 - `thread_map[]`
 
 Each actionable item must include: `ids`, `source_type`, `reviewer`, `signal_quality`, `severity`, `location`, `summary`, `problem`, `wants`, `evidence`, `confidence`, `recommendation`, `reason`, `original`, and PR-level `signals` when applicable.
+
+`nitpick_triage[]` is for automated reviewer comments explicitly labeled `Nitpick`. These comments are ignored and not processed. Do not include them in `thread_map[]`; do not reply to or resolve their threads.
 
 Inline actionable items must also include `thread_ids`: every review thread ID represented by the item or deduplicated group. Thread resolution uses these IDs directly; do not resolve inline comments by matching comment IDs.
 

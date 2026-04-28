@@ -20,8 +20,9 @@ Work through unresolved PR review feedback with thread-aware data, independent a
 - Use `gh` for all GitHub API calls. Do not use GitHub MCP tools for thread-aware review data.
 - Claude Code blocking choices: use `AskUserQuestion`.
 - Codex or other environments without `AskUserQuestion`: ask the question in plain text and stop until the user replies.
-- Never commit or push without explicit confirmation.
-- In the code-fix lane, the commit/push confirmation also authorizes posting the planned replies and resolving processed threads after the pushed commit is visible on the PR. Do not ask a second time unless a publish blocker occurs.
+- Treat an explicit resolve/fix/publish request (for example, `resolve PR comments`, `fix review comments`, or `publish the fixes`) as authorization for this skill's publish lane after all required comment decisions are recorded and verification/local review pass. Broad review-only requests such as `pr review` or `review comments` do not authorize commit, push, reply, or resolve writes; ask once before publishing.
+- Do not run a fresh CodeRabbit/uncommitted review for follow-up fixes made by this skill; the task is already responding to existing review feedback. Run a local review checklist focused on decision/diff alignment and verification instead.
+- If the diff includes new implementation work beyond the processed review comments, stop before commit/push and return to the normal repository Git workflow.
 - For comments fixed by code, commit and push before posting "Fixed in <commit>" replies or resolving threads. For no-code comments, post planned replies and resolve processed threads after the preview. Ask before GitHub thread writes only when a publish blocker makes the planned action unsafe or stale.
 
 ## Glossary
@@ -49,6 +50,7 @@ Read `data-gather.md` and `data-contract.md`, then classify the raw JSON into:
 
 - `outdated[]`
 - `copilot_triage[]`
+- `nitpick_triage[]`
 - `critical_major[]`
 - `medium_low[]`
 - `reply_only[]`
@@ -59,7 +61,7 @@ Severity controls presentation. Include reviewer-labeled Critical/Major/High/P0/
 
 If the script cannot run, use the fallback fetch rules in `data-gather.md`.
 
-If all buckets are empty (`outdated[]`, `copilot_triage[]`, `critical_major[]`, `medium_low[]`, `reply_only[]`, `deferred[]`), output "No review comments found" and stop.
+If all buckets are empty (`outdated[]`, `copilot_triage[]`, `nitpick_triage[]`, `critical_major[]`, `medium_low[]`, `reply_only[]`, `deferred[]`), output "No review comments found" and stop.
 
 ## Step 2 - Triage Summary
 
@@ -70,15 +72,16 @@ Show only a short count summary. Do not recommend decisions, synthesize the "mai
 PR: OWNER/REPO#123
 Outdated: 2
 Copilot auto-skipped: 3
+Nitpick ignored: 4
 Critical/Major: 1
 Medium/Low: 7
 Reply only: 1
 Deferred: 0
 ```
 
-For outdated and Copilot auto-triage, show one-line summaries. Do not spend user attention on full templates for already-triaged noise.
+For outdated and Copilot auto-triage, show one-line summaries. For nitpick auto-triage, show the count only. Do not spend user attention on full templates for already-triaged noise.
 
-After the count summary, immediately proceed to Step 3 if there are Critical/Major items. If there are no Critical/Major items, proceed to Step 4. Do not stop after the summary unless there are no actionable comments.
+After the count summary, immediately proceed to Step 3 if there are Critical/Major items. If there are no Critical/Major items, proceed to Step 4. Do not stop after the summary unless there are no actionable comments. If only `outdated[]`, `copilot_triage[]`, or `nitpick_triage[]` items remain, stop after the summary.
 
 ## Step 3 - Critical/Major Review
 
@@ -100,11 +103,11 @@ Do not start fixing until every actionable comment has a recorded decision. Do n
 
 ## Step 6 - Preview, Publish, Resolve
 
-Read `implementation.md` and `resolve-threads.md`. Follow the publish lanes there: code-fix comments are committed and pushed before reply/resolve, and that one publish confirmation covers the planned thread closure after push. No-code comments can be replied/resolved directly after the decision preview. Ask again only if a publish blocker appears.
+Read `implementation.md` and `resolve-threads.md`. Follow the publish lanes there: code-fix comments are committed and pushed before reply/resolve. Skip the extra confirmation only when the user explicitly asked to resolve, fix, or publish; review-only invocations require one publish confirmation before commit, push, reply, or resolve writes. Ask again only if a publish blocker appears.
 
 ## Common Mistakes
 
 - Before presenting each comment: include Evidence, Confidence, Reason, and current-code analysis; do not echo reviewer text as analysis.
 - For Critical/Major items: never summarize the whole review into one decision request; show one deduplicated item, ask for that item only, and stop.
 - Before fixing: every actionable comment must have a recorded decision or an explicitly accepted Medium/Low default; do not merge comments with different requested actions.
-- Before publishing: show diff preview and verification results; post replies before resolving threads; do not ask for permission solely to close straightforward processed threads; never claim a deferred follow-up exists unless it was created.
+- Before publishing: show diff preview and verification results; post replies before resolving threads; do not run another CodeRabbit review or ask for another publish confirmation inside this skill; never claim a deferred follow-up exists unless it was created.

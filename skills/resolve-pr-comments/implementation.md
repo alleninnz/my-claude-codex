@@ -51,23 +51,27 @@ Choose the lane from the recorded decisions:
 
 #### Code-fix lane
 
-For code fixes, reply/resolve happens after commit and push, because fixed replies must reference a pushed commit visible on the PR. The user's commit/push confirmation authorizes the full publish lane: commit, push, then close the processed threads whose replies were previewed.
+For code fixes, reply/resolve happens after commit and push, because fixed replies must reference a pushed commit visible on the PR. An explicit resolve/fix/publish request, plus recorded decisions for every actionable comment, authorizes the full publish lane: local review, commit, push, then close the processed threads whose replies were previewed. Broad review-only requests such as `pr review` or `review comments` require one publish confirmation before commit, push, reply, or resolve writes.
 
 1. Show the preview.
-2. Ask for one publish confirmation:
-
-   > Commit and push fixes? This also authorizes posting the planned replies and resolving processed threads after the pushed commit is visible on the PR.
-
-3. If confirmed, stage only intended files, create a descriptive commit, and push.
-4. Re-fetch the PR head and processed thread IDs.
-5. If there are no publish blockers, post replies and resolve processed threads automatically.
-6. If a publish blocker appears, stop before reply/resolve and ask with the specific reason.
-
-Use `AskUserQuestion` with `["Yes", "No"]` in Claude Code for the commit/push gate. In Codex, ask and stop.
+2. Determine publish authorization:
+   - If the user explicitly asked to resolve, fix, or publish PR comments, continue to the local publish checklist.
+   - If the user only asked to review/analyze comments, ask once: `Commit and push fixes? This also authorizes posting the planned replies and resolving processed threads after the pushed commit is visible on the PR.` Use `AskUserQuestion` with `["Yes", "No"]` in Claude Code; in Codex, ask and stop. Continue only if confirmed.
+3. Run a local publish checklist:
+   - PR head still matches the local branch before committing.
+   - Every processed comment has a recorded decision.
+   - The staged diff is limited to implementing those decisions.
+   - Relevant verification passed, or the user explicitly accepted a verification limitation earlier in the flow.
+   - Only intended files are staged.
+   - No new CodeRabbit review is run; this skill is already resolving existing review.
+4. If the checklist passes, stage only intended files, create a descriptive commit, and push.
+5. Re-fetch the PR head and processed thread IDs.
+6. If there are no publish blockers, post replies and resolve processed threads automatically.
+7. If a publish blocker appears, stop before reply/resolve and ask with the specific reason.
 
 #### No-code lane
 
-If there are no code changes, there is no commit/push gate. After decisions are recorded, show the preview and automatically post replies/resolve processed threads unless a publish blocker appears.
+If there are no code changes, there is no commit/push gate. After decisions are recorded, show the preview. If the user explicitly asked to resolve, fix, or publish PR comments, automatically post replies/resolve processed threads unless a publish blocker appears. If the user only asked to review/analyze comments, ask once before posting replies or resolving threads.
 
 ### Publish blockers
 
@@ -75,6 +79,7 @@ Do not ask just to reply and resolve processed threads. Ask only when a concrete
 
 - a processed comment does not have a recorded decision (`Fixed`, `Deferred`, `Reply only`, `Skip`, `Outdated`, or `Auto-skipped`);
 - in the code-fix lane, the fix commit is not committed, not pushed, unknown, or not included in the PR head;
+- the staged diff includes new feature work or unrelated cleanup beyond the processed review-comment decisions;
 - required verification failed, or an unaccepted verification limitation remains;
 - a planned reply is no longer factual/mechanical after re-fetching PR state;
 - a deferred reply would claim a follow-up issue exists when it was not actually created;
@@ -88,7 +93,7 @@ If there are no publish blockers, print a short status and proceed:
 Publish authorized and no blockers found. Posting replies and resolving processed threads now.
 ```
 
-Example: a reviewer asks to reword an error string, the code is fixed, tests pass, the user confirms commit/push, the commit is pushed, and the planned reply is "Fixed in <commit> by rephrasing the error while keeping the wrapped error intact." If the pushed commit is visible on the PR and the thread still matches the processed comment, post the reply and resolve the thread without another user confirmation.
+Example: a reviewer asks to reword an error string, the code is fixed, tests pass, the local publish checklist passes, the commit is pushed, and the planned reply is "Fixed in <commit> by rephrasing the error while keeping the wrapped error intact." If the pushed commit is visible on the PR and the thread still matches the processed comment, post the reply and resolve the thread without another user confirmation.
 
 When asking, include the reason:
 
@@ -98,4 +103,4 @@ Use `AskUserQuestion` with `["Yes", "No"]` in Claude Code. In Codex, ask and sto
 
 ## Publish
 
-Always read `resolve-threads.md` before GitHub writes. Post replies before resolving threads. Resolve only threads processed in this run. If confirmation is required and not granted, do not commit, push, post replies, or resolve threads for the blocked lane.
+Always read `resolve-threads.md` before GitHub writes. Post replies before resolving threads. Resolve only threads processed in this run. If publish confirmation or publish-blocker approval is required and not granted, do not commit, push, post replies, or resolve threads for the blocked lane.

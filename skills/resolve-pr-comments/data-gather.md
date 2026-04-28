@@ -58,9 +58,10 @@ Signal quality affects review order and scrutiny, not the final decision. Never 
 1. Drop resolved inline threads.
 2. Put unresolved `is_outdated: true` inline threads in `outdated[]` unless current code still clearly contains the issue.
 3. Drop PR-level comments containing `<!-- resolve-pr-comments:reply -->`; these are prior skill replies.
-4. Drop PR-author status updates from actionable candidates. Use them only as staleness or discussion signals.
-5. Classify remaining PR-level comments and review bodies into bot noise, conversational, or actionable.
-6. Classify active inline threads into actionable candidates.
+4. Put automated reviewer comments explicitly labeled `Nitpick` in `nitpick_triage[]`; do not analyze, present, reply, resolve, or include them in `thread_map[]`.
+5. Drop PR-author status updates from actionable candidates. Use them only as staleness or discussion signals.
+6. Classify remaining PR-level comments and review bodies into bot noise, conversational, or actionable.
+7. Classify active inline threads into actionable candidates.
 
 When in doubt, include. Over-including is recoverable in review; dropping substantive human feedback is invisible.
 
@@ -107,6 +108,7 @@ Return structured data with:
 - `pr`
 - `outdated[]`
 - `copilot_triage[]`
+- `nitpick_triage[]`
 - `critical_major[]`
 - `medium_low[]`
 - `reply_only[]`
@@ -132,6 +134,8 @@ Each actionable item must include:
 - `risk_if_skipped`: required for Medium/Low compact cards and any `Skip` or `Defer` recommendation
 - `original`: raw reviewer text
 - `signals`: PR-level staleness signals when applicable
+
+`nitpick_triage[]` items need only `ids`, `reviewer`, `location`, `summary`, and `original`. They are ignored, not processed; do not add them to `thread_map[]`.
 
 `thread_map[]` should map inline items to `thread_ids`, `comment_ids`, category, and planned reply intent so Step 6 can post replies and resolve only processed threads.
 
