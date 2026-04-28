@@ -15,9 +15,9 @@
 | Outdated | "Already addressed in \<commit\>" or "No longer applicable after \<change\>" |
 | Deduplicated groups | Same reply on each comment, referencing the shared fix |
 
-## Output noise suppression
+## Quiet GitHub Writes
 
-All `gh api` calls **MUST** redirect to `/dev/null`. Print only:
+Use `gh api --silent` for reply and resolve mutations. Print only:
 
 ```
 All replies posted. Now resolving threads.
@@ -31,17 +31,19 @@ All N threads resolved.
 **PR-level (issue comment) replies MUST end with the marker `<!-- resolve-pr-comments:reply -->`.** The data-gather step filters comments containing this marker on repeat runs so prior skill replies don't re-surface as fresh actionable items. Inline review comment replies don't need it — their thread is resolved, which already hides them.
 
 ```bash
-# Review comments (inline) — thread resolution handles re-run dedup, no marker needed
-gh api repos/{owner}/{repo}/pulls/{number}/comments/{id}/replies \
-  -f body="<reply>" > /dev/null
+# Review threads (inline) — thread resolution handles re-run dedup, no marker needed
+gh api graphql --silent \
+  -f query='mutation AddThreadReply($threadId: ID!, $body: String!) { addPullRequestReviewThreadReply(input: { pullRequestReviewThreadId: $threadId, body: $body }) { comment { id } } }' \
+  -F threadId="$thread_id" \
+  -f body="$reply_body"
 
 # Issue comments (PR-level) — **MUST** append the marker; issue comments have no
 # resolved state, so the marker is the only way to distinguish prior skill replies
 # from fresh review feedback on the next run.
-gh api repos/{owner}/{repo}/issues/{number}/comments \
+gh api --silent repos/{owner}/{repo}/issues/{number}/comments \
   -f body="<reply>
 
-<!-- resolve-pr-comments:reply -->" > /dev/null
+<!-- resolve-pr-comments:reply -->"
 ```
 
 ## Resolve threads
@@ -62,13 +64,16 @@ gh api graphql --paginate -F owner='{owner}' -F repo='{repo}' -F number={number}
         }
       }
     }
-  }' --jq '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | .id'
+  }' \
+  --jq '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | .id'
 ```
 
 Match processed inline `thread_ids` to currently unresolved thread IDs. Resolve each matching thread ID. If a processed thread is no longer unresolved, skip it as already resolved. Do not resolve by comment ID.
 
 ```bash
-gh api graphql -f query='mutation { resolveReviewThread(input: {threadId: "<threadId>"}) { thread { isResolved } } }' > /dev/null
+gh api graphql --silent \
+  -f query='mutation ResolveThread($threadId: ID!) { resolveReviewThread(input: {threadId: $threadId}) { thread { isResolved } } }' \
+  -F threadId="$thread_id"
 ```
 
 ## Deduplicated groups

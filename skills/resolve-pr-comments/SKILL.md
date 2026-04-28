@@ -20,6 +20,7 @@ Work through unresolved PR review feedback with thread-aware data, independent a
 - Use `gh` for all GitHub API calls. Do not use GitHub MCP tools for thread-aware review data.
 - Claude Code blocking choices: use `AskUserQuestion`.
 - Codex or other environments without `AskUserQuestion`: ask the question in plain text and stop until the user replies.
+- Keep user-facing output compact: show decisions, blockers, previews, and outcomes; keep raw tool/API output out of assistant responses.
 - Treat an explicit resolve/fix/publish request (for example, `resolve PR comments`, `fix review comments`, or `publish the fixes`) as authorization for this skill's publish lane after all required comment decisions are recorded and verification/local review pass. Broad review-only requests such as `pr review` or `review comments` do not authorize commit, push, reply, or resolve writes; ask once before publishing.
 - Do not run a fresh CodeRabbit/uncommitted review for follow-up fixes made by this skill; the task is already responding to existing review feedback. Run a local review checklist focused on decision/diff alignment and verification instead.
 - If the diff includes new implementation work beyond the processed review comments, stop before commit/push and return to the normal repository Git workflow.
