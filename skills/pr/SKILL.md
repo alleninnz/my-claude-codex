@@ -23,22 +23,6 @@ Still ask before:
 - Pushing directly to `main` / `master`.
 - Pushing to protected branches outside the PR branch.
 - Staging unrelated files.
-- Bypassing non-trivial CodeRabbit findings.
-
-## Commit Review Gate
-
-Before an automatic commit while creating or updating a PR:
-
-- Stage only intended files.
-- Run `coderabbit:review` with `type: uncommitted` for non-trivial changes, or the available CodeRabbit uncommitted-review equivalent.
-- 0 findings + applicable verification passed: commit and push.
-- 1+ findings: ask `[Fix review findings / Commit anyway / Skip]`.
-- Fix review findings: fix, rerun applicable verification, restage intended files, and rerun CodeRabbit.
-- Commit anyway: commit and push only after that explicit choice.
-- Skip: stop without commit or push.
-- Trivial wording/comment-only edits may skip CodeRabbit with a note; still stage only intended files.
-
-Applicable verification means the checks that can prove the actual changed surface: tests for behavior changes, format/lint/build for code changes, metadata/link validation for skill or docs changes, and required CI checks when they are available.
 
 ## Conventions
 
