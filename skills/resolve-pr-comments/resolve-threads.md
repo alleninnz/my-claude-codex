@@ -27,7 +27,7 @@ All N threads resolved.
 
 ## Reply API
 
-**PR-level (issue comment) replies MUST end with the marker `<!-- resolve-pr-comments:reply -->`.** The data-gather step filters comments containing this marker on repeat runs so prior skill replies don't re-surface as fresh actionable items. Inline review comment replies don't need it — their thread is resolved, which already hides them.
+**PR-level (issue comment) replies MUST end with the marker `<!-- resolve-pr-comments:reply -->`.** The classification step (see `analyzing.md`) filters comments containing this marker on repeat runs so prior skill replies don't re-surface as fresh actionable items. Inline review comment replies don't need it — their thread is resolved, which already hides them.
 
 ```bash
 # Review threads (inline) — thread resolution handles re-run dedup, no marker needed

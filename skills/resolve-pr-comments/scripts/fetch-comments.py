@@ -1,8 +1,28 @@
 #!/usr/bin/env python3
-"""Fetch thread-aware GitHub PR review data as JSON.
+"""fetch-comments.py — deterministic GitHub PR review data fetch.
 
-The skill consumes this raw data, then performs classification and analysis.
-Keep this script boring: deterministic fetch only, no review judgment.
+Fetches PR metadata, review threads, PR-level comments, and review
+submissions through paginated GraphQL queries in parallel. Used by
+the resolve-pr-comments skill as the data source for analysis.
+
+Output JSON shape:
+{
+  "schema_version": 1,
+  "source": "resolve-pr-comments/scripts/fetch-comments.py",
+  "pull_request": {
+    "owner", "repo", "number", "url", "title", "state",
+    "author", "base_ref", "head_sha", "updated_at"
+  },
+  "conversation_comments": [...],   # PR-level comments
+  "reviews": [...],                  # review submissions
+  "review_threads": [...]            # inline review threads
+}
+
+PR-level comments containing `<!-- resolve-pr-comments:reply -->`
+are prior skill replies; the agent must drop them before
+classification. Only unresolved threads are actionable by default.
+
+Run with --repo OWNER/REPO --pr 123 or --url <pr-url> for explicit PRs.
 """
 
 from __future__ import annotations

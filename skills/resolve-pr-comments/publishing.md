@@ -1,4 +1,6 @@
-# Implementation and Publish Protocol
+# Implementation and Publish
+
+Single source for how the agent moves from "user has decided every actionable comment" to "code is committed, replies are posted, and threads are resolved on GitHub". Read this in conjunction with `resolve-threads.md` (the `gh` API reference for reply/resolve mutations).
 
 ## Fix Plan
 
@@ -29,7 +31,7 @@ Verification must be concrete. Infer commands from `CLAUDE.md`/`AGENTS.md`, `Mak
 
 If verification fails, stop in Step 5, report the failure, and do not proceed to publish.
 
-## Preview and Publish
+## Preview
 
 Before publishing, show:
 
@@ -40,14 +42,26 @@ Before publishing, show:
 - threads/comments that will be resolved
 - deferred follow-up drafts, if any
 
-### Publish lanes
+## Thread Map
+
+`thread_map[]` tracks inline items that need replies or resolution. Each entry contains:
+
+- `item_id`: the actionable item this thread belongs to.
+- `thread_ids`: every review thread ID represented by the item or its deduplicated group.
+- `comment_ids`: the comment IDs inside those threads.
+- `category`: `Fixed` / `Deferred` / `Reply only` / `Outdated` / `Auto-skipped`.
+- `reply_intent`: short text of the planned reply, populated after user decisions are recorded.
+
+Step 6 reads `thread_map[]` to know which threads to reply to and which to resolve. Resolution uses `thread_ids` directly; do not resolve inline comments by matching comment IDs.
+
+## Publish Lanes
 
 Choose the lane from the recorded decisions:
 
 - **Code-fix lane**: at least one processed comment was fixed with code.
 - **No-code lane**: all processed comments are `Reply only`, `Outdated`, `Auto-skipped`, or `Deferred` with no code changes.
 
-#### Code-fix lane
+### Code-fix lane
 
 For code fixes, reply/resolve happens after commit and push, because fixed replies must reference a pushed commit visible on the PR. An explicit resolve/fix/publish request, plus recorded decisions for every actionable comment, authorizes the full publish lane: local review, commit, push, then close the processed threads whose replies were previewed. Broad review-only requests such as `pr review` or `review comments` require one publish confirmation before commit, push, reply, or resolve writes.
 
@@ -67,38 +81,28 @@ For code fixes, reply/resolve happens after commit and push, because fixed repli
 6. If there are no publish blockers, post replies and resolve processed threads automatically.
 7. If a publish blocker appears, stop before reply/resolve and ask with the specific reason.
 
-#### No-code lane
+### No-code lane
 
 If there are no code changes, there is no commit/push gate. After decisions are recorded, show the preview. If the user explicitly asked to resolve, fix, or publish PR comments, automatically post replies/resolve processed threads unless a publish blocker appears. If the user only asked to review/analyze comments, ask once before posting replies or resolving threads.
 
-### Publish blockers
+## Stop Conditions
 
-Do not ask just to reply and resolve processed threads. Ask only when a concrete publish blocker appears:
+Stop before any GitHub write (commit, push, reply, resolve) if any of: the local diff includes work outside the recorded review-comment decisions; a processed comment is missing a recorded decision (`Fix` / `Defer` / `Reply only`); the fix commit is not yet visible on PR head; verification failed and the user did not explicitly accept the limitation; a planned reply has gone stale after re-fetching PR state.
 
-- a processed comment does not have a recorded outcome — either a user `decision` (`Fix`, `Defer`, or `Reply only`) or an auto-bucket assignment (`Outdated` or `Auto-skipped`). `Needs your decision` and `Review` are non-publishable: the user must convert them into one of the three terminal decisions before publish.
-- in the code-fix lane, the fix commit is not committed, not pushed, unknown, or not included in the PR head;
-- the staged diff includes new feature work or unrelated cleanup beyond the processed review-comment decisions;
-- required verification failed, or an unaccepted verification limitation remains;
-- a planned reply is no longer factual/mechanical after re-fetching PR state;
-- a deferred reply would claim a follow-up issue exists when it was not actually created;
-- a reply-only decision is controversial, low-confidence, or came from a human reviewer and was not explicitly accepted;
-- re-fetching threads shows the target thread changed in a way that makes the planned reply stale;
-- GitHub API writes partially fail and retrying could duplicate replies.
+Examples:
 
-If there are no publish blockers, print a short status and proceed:
+- Diff has unrelated cleanup → stop, ask before commit.
+- Re-fetch shows the target thread was edited since Step 1 → stop, ask before reply.
+- A reply would claim "Follow-up filed in <issue>" but the issue was never created → stop.
+
+If there are no stop conditions, print a short status and proceed:
 
 ```text
 Publish authorized and no blockers found. Posting replies and resolving processed threads now.
 ```
 
-Example: a reviewer asks to reword an error string, the code is fixed, tests pass, the local publish checklist passes, the commit is pushed, and the planned reply is "Fixed in <commit> by rephrasing the error while keeping the wrapped error intact." If the pushed commit is visible on the PR and the thread still matches the processed comment, post the reply and resolve the thread without another user confirmation.
-
 When asking, include the reason:
 
 > A publish blocker appeared: <reason>. Post replies and resolve processed threads anyway?
 
-Use `AskUserQuestion` with `["Yes", "No"]` in Claude Code. In Codex, ask and stop.
-
-## Publish
-
-Always read `resolve-threads.md` before GitHub writes. Post replies before resolving threads. Resolve only threads processed in this run. If publish confirmation or publish-blocker approval is required and not granted, do not commit, push, post replies, or resolve threads for the blocked lane.
+Always read `resolve-threads.md` before GitHub writes. Post replies before resolving threads. Resolve only threads processed in this run.
