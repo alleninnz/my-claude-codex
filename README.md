@@ -15,13 +15,6 @@ Claude Code and Codex plugin for Go development, MySQL/Aurora guidance, implemen
 
 ```bash
 codex plugin marketplace add alleninnz/my-claude-codex
-```
-
-Then run `/plugins` in Codex, open the `My Claude Codex` marketplace, select `my-claude-codex`, install it, and restart Codex.
-
-If you added the marketplace before this repository included the Codex marketplace index, refresh it first:
-
-```bash
 codex plugin marketplace upgrade my-claude-codex
 ```
 
