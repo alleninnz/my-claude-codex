@@ -24,7 +24,7 @@ codex plugin marketplace upgrade my-claude-codex
 |-------|-------------|
 | `pr` | Create and update PRs with diff-based title/description generation |
 | `resolve-pr-comments` | Interactive per-comment review of AI reviewer feedback on current PR |
-| `write-linear-issues` | Draft Linear issues at "In Preparation" with intent-driven Context / Changes / Out of scope sections, default story point + status |
+| `write-linear-issues` | Draft Linear issues at "In Preparation" with intent-driven Context / Scope / Out of scope / Acceptance Criteria sections; opt-in story point estimation |
 | `go-playbook` | Go 1.21-1.26 patterns — error handling, concurrency, testing, performance, gRPC |
 | `go-simplify` | Simplify Go code while preserving behavior; shared Claude Code/Codex skill |
 | `mysql-aurora-playbook` | MySQL 8.0 & Aurora MySQL 3 patterns — indexes, types, queries, DDL, monitoring |
