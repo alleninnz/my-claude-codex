@@ -50,6 +50,7 @@ Still ask before:
 
 - Draft by default; create as ready (non-draft) only when the user explicitly says so (e.g. passes `ready` or asks for a non-draft PR).
 - If a PR already exists for the current branch: report it and treat further work as update/sync, not a new PR.
+- After creating a draft PR, post two separate review-trigger comments on it via `gh pr comment <pr> --body '<text>'` — one comment with body `@codex review`, another comment with body `BugBot run`. Two distinct comments, not a single combined one (each handle listens for its own standalone comment). Skip when the PR is created as ready.
 
 ### Update / Sync
 
