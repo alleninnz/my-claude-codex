@@ -60,13 +60,13 @@ Context locates the problem on surfaces that **already exist** ("the `accounts` 
 
 Scope names _what is in this issue_ using business language. It does NOT specify _how to code it_. Behavior-bearing constraints stay; encoding mechanics go to the PR.
 
-| Domain              | ✓ Stays (intent / contract)                                                                                           | ⚠️ State as behavior, not mechanism                                                                                   | ✗ Belongs in PR                                |
-| ------------------- | --------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| DB schema           | Field name + business meaning; required/optional; uniqueness; cardinality                                             | "Existing rows are treated as active" (not `DEFAULT FALSE`); "deleted records keep history" (not `ON DELETE CASCADE`) | Column types, index names, ALTER statements    |
-| gRPC / GraphQL      | Field name + purpose; required/optional; pagination/sort contract; error categories (`NotFound` / `PermissionDenied`) | "Default excludes archived rows" (not `WHERE is_archived=false`)                                                      | proto signatures, field numbers, resolver code |
-| UI                  | New / modified pages, components, actions; permission boundaries                                                      | "Archive action is admin-only" (not `useAuth().isAdmin`)                                                              | Component code, props shape, CSS               |
-| Authorization       | Who can call / see what / which error                                                                                 | "Non-admin callers receive `PermissionDenied`" (not `requireRole()` calls)                                            | RBAC config code                               |
-| Migration semantics | How existing data is treated; whether dual-write/read is needed                                                       | "Backfill treats NULL as active" (not `UPDATE … SET is_archived=false`)                                               | Backfill scripts, batch sizes                  |
+| Domain | ✓ Stays (intent / contract) | ⚠️ State as behavior, not mechanism | ✗ Belongs in PR |
+| --- | --- | --- | --- |
+| DB schema | Field name + business meaning; required/optional; uniqueness; cardinality | "Existing rows are treated as active" (not `DEFAULT FALSE`); "deleted records keep history" (not `ON DELETE CASCADE`) | Column types, index names, ALTER statements |
+| gRPC / GraphQL | Field name + purpose; required/optional; pagination/sort contract; error categories (`NotFound` / `PermissionDenied`) | "Default excludes archived rows" (not `WHERE is_archived=false`) | proto signatures, field numbers, resolver code |
+| UI | New / modified pages, components, actions; permission boundaries | "Archive action is admin-only" (not `useAuth().isAdmin`) | Component code, props shape, CSS |
+| Authorization | Who can call / see what / which error | "Non-admin callers receive `PermissionDenied`" (not `requireRole()` calls) | RBAC config code |
+| Migration semantics | How existing data is treated; whether dual-write/read is needed | "Backfill treats NULL as active" (not `UPDATE … SET is_archived=false`) | Backfill scripts, batch sizes |
 
 **Two-question heuristic** for each Scope line:
 
