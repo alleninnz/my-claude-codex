@@ -30,11 +30,20 @@ Adjusters (additive unless noted):
        Stacks with service adjusters above — touching one service owned by
        another team is +1 (second service) +2 (cross-team) = +3.
   +1  Completely new pattern (no adjacent precedent in repo)
+       Guard: triggers for architectural novelty — no known approach to
+       evaluate or try. Does NOT trigger for implementing a well-understood
+       technique (e.g. a standard library feature, a known data format) in
+       a place it hasn't been used before. That is familiarity overhead,
+       not architecture.
   +1  High unknowns (core problem unsolved here before / sparse docs)
   +1  Content volume (≥5 independent sub-deliverables — named templates,
        UI states, endpoints, pixel-level design alignment).
        Field count within a single schema change does NOT count here —
        that's already captured by the Schema adjuster.
+       Guard: sub-deliverables must be genuinely independent — i.e. in
+       normal PR practice they would ship separately. If all deliverables
+       naturally land in one PR as a cohesive unit, they do not count as
+       independent sub-deliverables regardless of how many there are.
   +1  Design density (cap +1, not stackable — see triggers below)
 
 Reducers (cap -1 total):
@@ -63,6 +72,10 @@ Trigger if **any one** of these is true. Cap remains +1 even if multiple trigger
 
 Authority must be **nameable**. "Industry best practice" or "looks like good design" does not qualify.
 
+**Guard for ①**: does not trigger when the work *extends* an existing pattern that already conforms to the spec (e.g. adding one more entry to a mapping table that was designed against the spec). Triggers when the engineer must reason directly from the spec to make new design decisions — record layouts, field widths, valid code sets derived from spec text, or any case where getting it wrong against the spec produces incorrect output.
+
+**Guard for ③**: at least one of the representations must be an *external* boundary (third-party API, wire format, regulatory file, published contract). Internal layer-to-layer mapping within a single service (e.g. DB model → service struct) does not trigger.
+
 ### The 3-vs-5 escalation
 
 If the computed value lands in 3–4, ask one question before snapping:
@@ -87,6 +100,8 @@ Parent containers whose work lives in child task issues. Each child is scored in
 | Use heading / sub-heading count | Structure ≠ scope |
 | Use domain-term density (`AMIT`, `s276`, `ITAA`) | Domain words don't add engineering work. They only count if they trigger External-spec authority — i.e. the term names a specification you must conform to. |
 | Add +1 because the issue bundles multiple originally-split sub-issues | Bundling is an organizational choice. Score the actual work; the bundling itself adds nothing. |
+| Trigger content volume because many things are *listed* in Scope | Listed items in a single PR are not independent sub-deliverables. Count only what would ship in separate PRs in normal practice. |
+| Trigger design density ① because a named spec is *mentioned* | The spec must drive active design decisions in this ticket. Extending a pre-existing spec-conformant pattern does not trigger it. |
 | Count "why this design" sentences in the description | Rewards verbose authors and punishes terse-but-correct ones |
 
 ## How to estimate — process
@@ -94,8 +109,9 @@ Parent containers whose work lives in child task issues. Each child is scored in
 1. **Read Context and Scope.** Internalize what is actually being built (not how it's described).
 2. **Compute base + adjusters - reducers.** Walk the list mechanically; each adjuster needs a concrete signal.
 3. **Apply reducers** if applicable (cap -1).
-4. **Snap to Fibonacci.** If result is 3–4, run the 3-vs-5 escalation question.
-5. **Output the score with a one-sentence rationale that names the adjusters that moved it** — not abstract dimensions.
+4. **Multi-adjuster sanity check.** If 3 or more adjusters fired and the result is ≥5, pause before snapping. Ask: "Would a senior engineer familiar with this repo spend more than a full day of net coding (excluding review, handoff, and meetings) on this?" If not, re-examine each adjuster against its guard conditions — at least one is likely over-triggered.
+5. **Snap to Fibonacci.** If result is 3–4, run the 3-vs-5 escalation question.
+6. **Output the score with a one-sentence rationale that names the adjusters that moved it** — not abstract dimensions.
 
 ## Output format
 
